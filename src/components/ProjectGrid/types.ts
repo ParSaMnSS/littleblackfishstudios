@@ -1,6 +1,8 @@
 export interface Project {
   id: string;
+  slug: string;
   youtubeUrl: string;
+  image?: string | null;
   published: boolean;
   titleEn: string;
   titleFa: string;
