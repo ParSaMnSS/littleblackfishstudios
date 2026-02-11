@@ -12,8 +12,9 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   // 1. Cleanup
   await prisma.project.deleteMany({})
+  await prisma.heroSlide.deleteMany({})
 
-  // 2. Add Dummy Data
+  // 2. Add Dummy Projects
   const projects = [
     {
       slug: "kagu-workflow-automation",
@@ -52,8 +53,36 @@ async function main() {
       data: project
     })
   }
+
+  // 3. Add Dummy Hero Slides
+  const slides = [
+    {
+      titleEn: "Software Solutions & Engineering",
+      titleFa: "راهکارهای نرم‌افزاری و مهندسی",
+      subtitleEn: "Elevating your digital presence with cutting-edge technology.",
+      subtitleFa: "ارتقای حضور دیجیتال شما با فناوری‌های روز دنیا.",
+      imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
+      order: 1,
+      active: true
+    },
+    {
+      titleEn: "Immersive Digital Experiences",
+      titleFa: "تجربیات دیجیتال فراگیر",
+      subtitleEn: "We build the tools that shape the future.",
+      subtitleFa: "ما ابزارهایی می‌سازیم که آینده را شکل می‌دهند.",
+      imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2070&auto=format&fit=crop",
+      order: 2,
+      active: true
+    }
+  ]
+
+  for (const slide of slides) {
+    await prisma.heroSlide.create({
+      data: slide
+    })
+  }
   
-  console.log("✅ Database seeded successfully with 3 slug-enabled projects")
+  console.log("✅ Database seeded successfully with projects and hero slides")
 }
 
 main()

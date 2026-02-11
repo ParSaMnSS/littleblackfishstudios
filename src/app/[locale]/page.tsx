@@ -14,6 +14,12 @@ export default async function HomePage({ params }: HomePageProps) {
     notFound();
   }
 
+  // Fetch active hero slides ordered by 'order'
+  const slides = await prisma.heroSlide.findMany({
+    where: { active: true },
+    orderBy: { order: 'asc' },
+  });
+
   // Fetch published projects from Prisma
   const projects = await prisma.project.findMany({
     where: {
@@ -25,12 +31,20 @@ export default async function HomePage({ params }: HomePageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-black">
-      <Hero locale={locale} />
+    <main className="min-h-screen bg-black">
+      {/* Cinematic Hero Section */}
+      <Hero slides={slides} locale={locale} />
       
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <header className="mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
+      {/* Content Section */}
+      <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <header className="mb-16">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-px flex-1 bg-zinc-800"></div>
+            <span className="text-xs font-bold tracking-[0.2em] text-blue-500 uppercase">
+              {locale === 'fa' ? 'نمونه کارها' : 'Portfolio'}
+            </span>
+          </div>
+          <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
             {locale === 'fa' ? 'پروژه‌های اخیر' : 'Recent Projects'}
           </h2>
         </header>
@@ -38,9 +52,9 @@ export default async function HomePage({ params }: HomePageProps) {
         <ProjectGrid projects={projects} locale={locale} />
         
         {projects.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-zinc-500">
-              {locale === 'fa' ? 'هیچ پروژه‌ای یافت نشد.' : 'No projects found.'}
+          <div className="text-center py-20 border border-dashed border-zinc-800 rounded-2xl">
+            <p className="text-zinc-500 font-light italic">
+              {locale === 'fa' ? 'هیچ پروژه‌ای یافت نشد.' : 'No projects found in the archive.'}
             </p>
           </div>
         )}

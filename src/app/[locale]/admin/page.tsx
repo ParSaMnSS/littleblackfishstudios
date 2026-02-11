@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { toggleProjectStatus } from "@/actions/admin";
 import { notFound } from "next/navigation";
 import ProjectForm from "@/components/Admin/ProjectForm";
+import HeroManager from "@/components/Admin/HeroManager";
 
 interface AdminPageProps {
   params: Promise<{ locale: string }>;
@@ -14,8 +15,13 @@ export default async function AdminPage({ params }: AdminPageProps) {
     notFound();
   }
 
+  // Fetch data
   const projects = await prisma.project.findMany({
     orderBy: { createdAt: 'desc' },
+  });
+
+  const heroSlides = await prisma.heroSlide.findMany({
+    orderBy: { order: 'asc' },
   });
 
   const isRtl = locale === 'fa';
@@ -27,8 +33,18 @@ export default async function AdminPage({ params }: AdminPageProps) {
           {isRtl ? 'پنل مدیریت کاگو' : 'KAGU Admin Panel'}
         </h1>
         
-        {/* Create Project Form */}
-        <ProjectForm locale={locale} />
+        {/* Section 1: Hero Management */}
+        <div className="mb-20">
+          <HeroManager initialSlides={heroSlides} locale={locale} />
+        </div>
+
+        <div className="h-px w-full bg-zinc-800 mb-20" />
+
+        {/* Section 2: Project Management */}
+        <div className="space-y-8">
+          <h2 className="text-2xl font-bold">{isRtl ? 'مدیریت پروژه‌ها' : 'Project Management'}</h2>
+          <ProjectForm locale={locale} />
+        </div>
       </header>
 
       <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50">
