@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Lalezar } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const lalezar = Lalezar({
+  variable: "--font-lalezar",
+  subsets: ["arabic"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -37,11 +38,12 @@ export default async function RootLayout({
   }
 
   const messages = await getMessages();
+  const isRtl = locale === 'fa';
 
   return (
-    <html lang={locale} dir={locale === 'fa' ? 'rtl' : 'ltr'}>
+    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} className={`${inter.variable} ${lalezar.variable}`}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen`}
+        className={`${isRtl ? lalezar.className : inter.className} antialiased bg-black text-white min-h-screen`}
       >
         <NextIntlClientProvider messages={messages}>
           <LanguageSwitcher />
