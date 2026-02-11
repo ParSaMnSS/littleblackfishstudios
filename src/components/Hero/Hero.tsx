@@ -7,10 +7,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HeroSlide {
   id: string;
-  titleEn: string;
-  titleFa: string;
-  subtitleEn: string;
-  subtitleFa: string;
+  titleEn: string | null;
+  titleFa: string | null;
+  subtitleEn: string | null;
+  subtitleFa: string | null;
   imageUrl: string;
 }
 
@@ -56,11 +56,15 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 
   if (!slides || slides.length === 0) return null;
 
+  const currentSlide = slides[current];
+  const title = isRtl ? currentSlide.titleFa : currentSlide.titleEn;
+  const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black">
       <AnimatePresence mode="wait">
         <motion.div
-          key={slides[current].id}
+          key={currentSlide.id}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -74,9 +78,9 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
             transition={{ duration: 12, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            {isVideo(slides[current].imageUrl) ? (
+            {isVideo(currentSlide.imageUrl) ? (
               <video 
-                src={slides[current].imageUrl}
+                src={currentSlide.imageUrl}
                 className="h-full w-full object-cover"
                 autoPlay
                 muted
@@ -85,8 +89,8 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
               />
             ) : (
               <Image
-                src={slides[current].imageUrl}
-                alt={isRtl ? slides[current].titleFa : slides[current].titleEn}
+                src={currentSlide.imageUrl}
+                alt={title || "Hero background"}
                 fill
                 priority
                 className="object-cover"
@@ -95,39 +99,46 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
           </motion.div>
 
           {/* Content Container */}
-          <div className="relative flex h-full items-center justify-center px-6 text-center">
-            <div className="max-w-6xl">
-              <motion.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
-                className="space-y-6 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]"
-              >
-                <h1 className={`font-black tracking-tighter text-white uppercase leading-none
-                  ${isRtl ? 'text-5xl md:text-8xl' : 'text-6xl md:text-9xl'}`}
-                >
-                  {isRtl ? slides[current].titleFa : slides[current].titleEn}
-                </h1>
-                
-                <div className="mx-auto h-1.5 w-32 bg-blue-600/90 shadow-xl" />
-                
-                <p className="mx-auto max-w-2xl text-lg font-bold tracking-wide text-zinc-100 md:text-2xl">
-                  {isRtl ? slides[current].subtitleFa : slides[current].subtitleEn}
-                </p>
-
+          {(title || subtitle) && (
+            <div className="relative flex h-full items-center justify-center px-6 text-center">
+              <div className="max-w-6xl">
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5 }}
-                  className="pt-12"
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
+                  className="space-y-6 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]"
                 >
-                  <button className="rounded-full border border-white/30 bg-white/10 px-10 py-4 text-xs font-black tracking-[0.3em] text-white backdrop-blur-md transition-all hover:bg-white hover:text-black shadow-2xl">
-                    {isRtl ? 'مشاهده پروژه‌ها' : 'EXPLORE WORK'}
-                  </button>
+                  {title && (
+                    <>
+                      <h1 className={`font-black tracking-tighter text-white uppercase leading-none
+                        ${isRtl ? 'text-5xl md:text-8xl' : 'text-6xl md:text-9xl'}`}
+                      >
+                        {title}
+                      </h1>
+                      <div className="mx-auto h-1.5 w-32 bg-blue-600/90 shadow-xl" />
+                    </>
+                  )}
+                  
+                  {subtitle && (
+                    <p className="mx-auto max-w-2xl text-lg font-bold tracking-wide text-zinc-100 md:text-2xl">
+                      {subtitle}
+                    </p>
+                  )}
+
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.5 }}
+                    className="pt-12"
+                  >
+                    <button className="rounded-full border border-white/30 bg-white/10 px-10 py-4 text-xs font-black tracking-[0.3em] text-white backdrop-blur-md transition-all hover:bg-white hover:text-black shadow-2xl">
+                      {isRtl ? 'مشاهده پروژه‌ها' : 'EXPLORE WORK'}
+                    </button>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
+              </div>
             </div>
-          </div>
+          )}
         </motion.div>
       </AnimatePresence>
 

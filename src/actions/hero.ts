@@ -6,10 +6,10 @@ import { del } from '@vercel/blob';
 
 export async function createHeroSlide(formData: FormData) {
   try {
-    const titleEn = formData.get('titleEn') as string;
-    const titleFa = formData.get('titleFa') as string;
-    const subtitleEn = formData.get('subtitleEn') as string;
-    const subtitleFa = formData.get('subtitleFa') as string;
+    const titleEn = formData.get('titleEn') as string || null;
+    const titleFa = formData.get('titleFa') as string || null;
+    const subtitleEn = formData.get('subtitleEn') as string || null;
+    const subtitleFa = formData.get('subtitleFa') as string || null;
     const order = parseInt(formData.get('order') as string) || 0;
     const imageUrl = formData.get('imageUrl') as string;
 
@@ -70,10 +70,10 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
 
 export async function updateHeroSlide(id: string, formData: FormData) {
   try {
-    const titleEn = formData.get('titleEn') as string;
-    const titleFa = formData.get('titleFa') as string;
-    const subtitleEn = formData.get('subtitleEn') as string;
-    const subtitleFa = formData.get('subtitleFa') as string;
+    const titleEn = formData.get('titleEn') as string || null;
+    const titleFa = formData.get('titleFa') as string || null;
+    const subtitleEn = formData.get('subtitleEn') as string || null;
+    const subtitleFa = formData.get('subtitleFa') as string || null;
     const order = parseInt(formData.get('order') as string) || 0;
     const imageUrl = formData.get('imageUrl') as string;
 

@@ -8,15 +8,32 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async () => {
+      onBeforeGenerateToken: async (
+        pathname,
+        /* clientPayload */
+      ) => {
+        // Here you would typically check the user's session
+        // e.g. const session = await getSession(request);
+        // if (!session) throw new Error('Unauthenticated');
+
         return {
-          allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-          addRandomSuffix: true, // Enable unique filenames here (server-side)
-          tokenPayload: JSON.stringify({}),
+          allowedContentTypes: [
+            'image/jpeg', 
+            'image/png', 
+            'image/gif', 
+            'image/webp',
+            'video/mp4',
+            'video/webm'
+          ],
+          addRandomSuffix: true,
+          tokenPayload: JSON.stringify({
+            // optional, sent to your `onUploadCompleted` callback
+          }),
         };
       },
-      onUploadCompleted: async ({ blob }) => {
-        console.log('blob upload completed', blob);
+      onUploadCompleted: async ({ blob, tokenPayload }) => {
+        // Get notified of completed uploads
+        console.log('blob upload completed', blob, tokenPayload);
       },
     });
 

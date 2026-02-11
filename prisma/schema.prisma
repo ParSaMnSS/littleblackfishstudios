@@ -23,10 +23,10 @@ model Project {
 
 model HeroSlide {
   id         String   @id @default(cuid())
-  titleEn    String
-  titleFa    String
-  subtitleEn String
-  subtitleFa String
+  titleEn    String?
+  titleFa    String?
+  subtitleEn String?
+  subtitleFa String?
   imageUrl   String
   order      Int      @default(0)
   active     Boolean  @default(true)

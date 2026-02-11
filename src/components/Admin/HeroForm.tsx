@@ -73,10 +73,10 @@ export default function HeroForm({ locale, initialData, onClose }: HeroFormProps
           />
         </div>
         <div className="space-y-4">
-          <input name="titleEn" defaultValue={initialData?.titleEn} placeholder="Title (EN)" required className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
-          <input name="titleFa" defaultValue={initialData?.titleFa} placeholder="عنوان (FA)" dir="rtl" required className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
-          <input name="subtitleEn" defaultValue={initialData?.subtitleEn} placeholder="Subtitle (EN)" required className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
-          <input name="subtitleFa" defaultValue={initialData?.subtitleFa} placeholder="زیرنویس (FA)" dir="rtl" required className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
+          <input name="titleEn" defaultValue={initialData?.titleEn} placeholder={isRtl ? 'عنوان (اختیاری - EN)' : 'Title (Optional - EN)'} className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
+          <input name="titleFa" defaultValue={initialData?.titleFa} placeholder={isRtl ? 'عنوان (اختیاری - FA)' : 'Title (Optional - FA)'} dir="rtl" className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
+          <input name="subtitleEn" defaultValue={initialData?.subtitleEn} placeholder={isRtl ? 'زیرنویس (اختیاری - EN)' : 'Subtitle (Optional - EN)'} className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
+          <input name="subtitleFa" defaultValue={initialData?.subtitleFa} placeholder={isRtl ? 'زیرنویس (اختیاری - FA)' : 'Subtitle (Optional - FA)'} dir="rtl" className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white" />
           
           <button 
             type="submit" 
