@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { uploadImage } from '@/actions/upload';
-import { Loader2, UploadCloud, CheckCircle } from 'lucide-react';
+import { upload } from '@vercel/blob/client';
+import { Loader2, UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 
 interface ImageUploadProps {
@@ -12,27 +12,36 @@ interface ImageUploadProps {
 
 export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [preview, setPreview] = useState<string | null>(defaultValue || null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Show local preview
+    setError(null);
+    setProgress(0);
+    setUploading(true);
+    
+    // Show local preview immediately
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
-    setUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const url = await uploadImage(formData);
-      onUploadComplete(url);
-    } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      const newBlob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        onUploadProgress: (progressEvent) => {
+          setProgress(progressEvent.percentage);
+        },
+      });
+
+      onUploadComplete(newBlob.url);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError('Upload failed. Please try again.');
       setPreview(defaultValue || null);
     } finally {
       setUploading(false);
@@ -42,8 +51,10 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
   return (
     <div className="space-y-4">
       <div 
-        onClick={() => fileInputRef.current?.click()}
-        className="relative flex aspect-video w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-800 bg-zinc-900/50 transition-colors hover:bg-zinc-900"
+        onClick={() => !uploading && fileInputRef.current?.click()}
+        className={`relative flex aspect-video w-full flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
+          uploading ? 'cursor-not-allowed border-zinc-700 bg-zinc-900/30' : 'cursor-pointer border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900'
+        }`}
       >
         {preview ? (
           <>
@@ -51,18 +62,24 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
               src={preview} 
               alt="Preview" 
               fill 
-              className="rounded-lg object-cover opacity-60"
+              className={`rounded-lg object-cover transition-opacity ${uploading ? 'opacity-30' : 'opacity-60'}`}
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 text-white">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 text-white rounded-lg">
               {uploading ? (
-                <>
-                  <Loader2 className="h-10 w-10 animate-spin" />
-                  <p className="mt-2 text-sm font-medium">Uploading...</p>
-                </>
+                <div className="flex flex-col items-center gap-3 px-10 w-full">
+                  <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+                  <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="bg-blue-500 h-full transition-all duration-300" 
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-sm font-bold tracking-widest">{Math.round(progress)}%</p>
+                </div>
               ) : (
                 <>
-                  <CheckCircle className="h-10 w-10 text-green-500" />
-                  <p className="mt-2 text-sm font-medium text-white">Change Image</p>
+                  <CheckCircle className="h-10 w-10 text-green-500 mb-2" />
+                  <p className="text-sm font-bold uppercase tracking-widest">Change Image</p>
                 </>
               )}
             </div>
@@ -70,11 +87,18 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
         ) : (
           <div className="flex flex-col items-center justify-center p-6 text-zinc-500">
             <UploadCloud className="h-12 w-12 mb-2" />
-            <p className="text-sm font-medium">Click to upload thumbnail</p>
-            <p className="text-xs">Supports JPG, PNG, WEBP</p>
+            <p className="text-sm font-bold uppercase tracking-widest">Upload Thumbnail</p>
+            <p className="text-xs mt-1">Maximum 4.5MB recommended</p>
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="flex items-center gap-2 text-red-500 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+        </div>
+      )}
 
       <input 
         type="file" 
@@ -82,6 +106,7 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
         onChange={handleFileChange}
         className="hidden" 
         accept="image/*"
+        disabled={uploading}
       />
     </div>
   );

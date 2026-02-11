@@ -2,36 +2,34 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { del, put } from '@vercel/blob';
+import { del } from '@vercel/blob';
 
 export async function createHeroSlide(formData: FormData) {
   try {
-    const file = formData.get('file') as File;
     const titleEn = formData.get('titleEn') as string;
     const titleFa = formData.get('titleFa') as string;
     const subtitleEn = formData.get('subtitleEn') as string;
     const subtitleFa = formData.get('subtitleFa') as string;
     const order = parseInt(formData.get('order') as string) || 0;
+    const imageUrl = formData.get('imageUrl') as string;
 
-    if (!file) throw new Error('Image is required');
+    if (!imageUrl) throw new Error('Image is required');
 
-    // 1. Upload to Blob
-    const blob = await put(file.name, file, { access: 'public' });
-
-    // 2. Save to DB
+    // Save to DB
     await prisma.heroSlide.create({
       data: {
         titleEn,
         titleFa,
         subtitleEn,
         subtitleFa,
-        imageUrl: blob.url,
+        imageUrl,
         order,
         active: true,
       },
     });
 
     revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
     return { success: true };
   } catch (error) {
     console.error('Create hero slide failed:', error);
@@ -77,22 +75,7 @@ export async function updateHeroSlide(id: string, formData: FormData) {
     const subtitleEn = formData.get('subtitleEn') as string;
     const subtitleFa = formData.get('subtitleFa') as string;
     const order = parseInt(formData.get('order') as string) || 0;
-    const file = formData.get('file') as File | null;
-    const currentImageUrl = formData.get('currentImageUrl') as string;
-
-    let imageUrl = currentImageUrl;
-
-    if (file && file.size > 0) {
-      if (currentImageUrl && currentImageUrl.includes('public.blob.vercel-storage.com')) {
-        try {
-          await del(currentImageUrl);
-        } catch (e) {
-          console.error("Failed to delete old blob:", e);
-        }
-      }
-      const blob = await put(file.name, file, { access: 'public' });
-      imageUrl = blob.url;
-    }
+    const imageUrl = formData.get('imageUrl') as string;
 
     await prisma.heroSlide.update({
       where: { id },
