@@ -52,6 +52,8 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
     return () => clearTimeout(resumeTimer);
   };
 
+  const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)$/);
+
   if (!slides || slides.length === 0) return null;
 
   return (
@@ -65,24 +67,32 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
           transition={{ duration: 1.5, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          {/* Background Image with Ken Burns Effect */}
+          {/* Background Media */}
           <motion.div 
-            initial={{ scale: 1.15 }}
+            initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 12, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <Image
-              src={slides[current].imageUrl}
-              alt={isRtl ? slides[current].titleFa : slides[current].titleEn}
-              fill
-              priority
-              className="object-cover opacity-70"
-            />
+            {isVideo(slides[current].imageUrl) ? (
+              <video 
+                src={slides[current].imageUrl}
+                className="h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <Image
+                src={slides[current].imageUrl}
+                alt={isRtl ? slides[current].titleFa : slides[current].titleEn}
+                fill
+                priority
+                className="object-cover"
+              />
+            )}
           </motion.div>
-
-          {/* Refined Cinematic Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
           {/* Content Container */}
           <div className="relative flex h-full items-center justify-center px-6 text-center">
@@ -91,7 +101,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
-                className="space-y-6"
+                className="space-y-6 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]"
               >
                 <h1 className={`font-black tracking-tighter text-white uppercase leading-none
                   ${isRtl ? 'text-5xl md:text-8xl' : 'text-6xl md:text-9xl'}`}
@@ -99,9 +109,9 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
                   {isRtl ? slides[current].titleFa : slides[current].titleEn}
                 </h1>
                 
-                <div className="mx-auto h-1.5 w-32 bg-blue-600/90" />
+                <div className="mx-auto h-1.5 w-32 bg-blue-600/90 shadow-xl" />
                 
-                <p className="mx-auto max-w-2xl text-lg font-light tracking-wide text-zinc-300 md:text-2xl">
+                <p className="mx-auto max-w-2xl text-lg font-bold tracking-wide text-zinc-100 md:text-2xl">
                   {isRtl ? slides[current].subtitleFa : slides[current].subtitleEn}
                 </p>
 
@@ -111,7 +121,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
                   transition={{ delay: 1.5 }}
                   className="pt-12"
                 >
-                  <button className="rounded-full border border-white/30 bg-white/5 px-10 py-4 text-xs font-black tracking-[0.3em] text-white backdrop-blur-md transition-all hover:bg-white hover:text-black">
+                  <button className="rounded-full border border-white/30 bg-white/10 px-10 py-4 text-xs font-black tracking-[0.3em] text-white backdrop-blur-md transition-all hover:bg-white hover:text-black shadow-2xl">
                     {isRtl ? 'مشاهده پروژه‌ها' : 'EXPLORE WORK'}
                   </button>
                 </motion.div>
@@ -126,14 +136,14 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
         <>
           <button
             onClick={() => { triggerInteraction(); handlePrev(); }}
-            className="absolute left-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white"
+            className="absolute left-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white drop-shadow-md"
             aria-label="Previous slide"
           >
             <ChevronLeft className="h-12 w-12" />
           </button>
           <button
             onClick={() => { triggerInteraction(); handleNext(); }}
-            className="absolute right-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white"
+            className="absolute right-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white drop-shadow-md"
             aria-label="Next slide"
           >
             <ChevronRight className="h-12 w-12" />
@@ -148,7 +158,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
             <button
               key={index}
               onClick={() => { triggerInteraction(); setCurrent(index); }}
-              className={`h-1 rounded-full transition-all duration-700 ${
+              className={`h-1 rounded-full transition-all duration-700 shadow-lg ${
                 current === index ? 'w-16 bg-white' : 'w-4 bg-white/20'
               }`}
             />
@@ -157,10 +167,10 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
       )}
 
       {/* Scroll Decorator */}
-      <div className="absolute bottom-10 left-10 hidden md:block z-40">
+      <div className="absolute bottom-10 left-10 hidden md:block z-40 drop-shadow-md">
          <div className="flex items-center gap-4 rotate-90 origin-left translate-y-24">
-            <span className="text-[10px] font-black tracking-[0.5em] text-zinc-600 uppercase">Scroll to explore</span>
-            <div className="h-px w-20 bg-zinc-800" />
+            <span className="text-[10px] font-black tracking-[0.5em] text-zinc-100 uppercase">Scroll to explore</span>
+            <div className="h-px w-20 bg-zinc-100/50" />
          </div>
       </div>
     </div>

@@ -17,6 +17,8 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)$/) || url.startsWith('data:video');
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -58,12 +60,23 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
       >
         {preview ? (
           <>
-            <Image 
-              src={preview} 
-              alt="Preview" 
-              fill 
-              className={`rounded-lg object-cover transition-opacity ${uploading ? 'opacity-30' : 'opacity-60'}`}
-            />
+            {isVideo(preview) ? (
+              <video 
+                src={preview} 
+                className={`h-full w-full rounded-lg object-cover transition-opacity ${uploading ? 'opacity-30' : 'opacity-60'}`}
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <Image 
+                src={preview} 
+                alt="Preview" 
+                fill 
+                className={`rounded-lg object-cover transition-opacity ${uploading ? 'opacity-30' : 'opacity-60'}`}
+              />
+            )}
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 text-white rounded-lg">
               {uploading ? (
                 <div className="flex flex-col items-center gap-3 px-10 w-full">
@@ -79,7 +92,7 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
               ) : (
                 <>
                   <CheckCircle className="h-10 w-10 text-green-500 mb-2" />
-                  <p className="text-sm font-bold uppercase tracking-widest">Change Image</p>
+                  <p className="text-sm font-bold uppercase tracking-widest">Change Media</p>
                 </>
               )}
             </div>
@@ -87,8 +100,8 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
         ) : (
           <div className="flex flex-col items-center justify-center p-6 text-zinc-500">
             <UploadCloud className="h-12 w-12 mb-2" />
-            <p className="text-sm font-bold uppercase tracking-widest">Upload Thumbnail</p>
-            <p className="text-xs mt-1">Maximum 4.5MB recommended</p>
+            <p className="text-sm font-bold uppercase tracking-widest">Upload Media</p>
+            <p className="text-xs mt-1">Supports JPG, PNG, WEBP, MP4, WEBM</p>
           </div>
         )}
       </div>
@@ -105,7 +118,7 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden" 
-        accept="image/*"
+        accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
         disabled={uploading}
       />
     </div>
