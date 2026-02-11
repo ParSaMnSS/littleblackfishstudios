@@ -26,7 +26,7 @@ export default async function HomePage({ params }: HomePageProps) {
       published: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      order: 'asc',
     },
   });
 

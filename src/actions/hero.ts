@@ -69,3 +69,48 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
     return { success: false };
   }
 }
+
+export async function updateHeroSlide(id: string, formData: FormData) {
+  try {
+    const titleEn = formData.get('titleEn') as string;
+    const titleFa = formData.get('titleFa') as string;
+    const subtitleEn = formData.get('subtitleEn') as string;
+    const subtitleFa = formData.get('subtitleFa') as string;
+    const order = parseInt(formData.get('order') as string) || 0;
+    const file = formData.get('file') as File | null;
+    const currentImageUrl = formData.get('currentImageUrl') as string;
+
+    let imageUrl = currentImageUrl;
+
+    if (file && file.size > 0) {
+      if (currentImageUrl && currentImageUrl.includes('public.blob.vercel-storage.com')) {
+        try {
+          await del(currentImageUrl);
+        } catch (e) {
+          console.error("Failed to delete old blob:", e);
+        }
+      }
+      const blob = await put(file.name, file, { access: 'public' });
+      imageUrl = blob.url;
+    }
+
+    await prisma.heroSlide.update({
+      where: { id },
+      data: {
+        titleEn,
+        titleFa,
+        subtitleEn,
+        subtitleFa,
+        imageUrl,
+        order,
+      },
+    });
+
+    revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
+    return { success: true };
+  } catch (error) {
+    console.error('Update hero slide failed:', error);
+    return { success: false, error: 'Failed to update slide' };
+  }
+}
