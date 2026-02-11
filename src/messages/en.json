@@ -1,1 +1,17 @@
-{}
+{
+  "Hero": {
+    "title": "Welcome to KAGU",
+    "subtitle": "Software Solutions & Engineering",
+    "cta": "View Projects"
+  },
+  "ProjectGrid": {
+    "title": "Latest Projects",
+    "viewDetails": "View Details"
+  },
+  "Admin": {
+    "title": "Project Dashboard",
+    "published": "Published",
+    "hidden": "Hidden",
+    "toggle": "Toggle Status"
+  }
+}

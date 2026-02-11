@@ -8,7 +8,9 @@ datasource db {
 
 model Project {
   id         String   @id @default(cuid())
+  slug       String   @unique
   youtubeUrl String
+  image      String?
   published  Boolean  @default(false)
   titleEn    String
   titleFa    String

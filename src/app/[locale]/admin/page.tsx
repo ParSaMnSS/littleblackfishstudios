@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { toggleProjectStatus } from "@/actions/admin";
 import { notFound } from "next/navigation";
+import ProjectForm from "@/components/Admin/ProjectForm";
 
 interface AdminPageProps {
   params: Promise<{ locale: string }>;
@@ -20,33 +21,36 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const isRtl = locale === 'fa';
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <header className="mb-12 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-          {isRtl ? 'پنل مدیریت' : 'Admin Panel'}
+    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 bg-black text-white min-h-screen">
+      <header className="mb-12">
+        <h1 className="text-4xl font-bold text-white mb-8">
+          {isRtl ? 'پنل مدیریت کاگو' : 'KAGU Admin Panel'}
         </h1>
+        
+        {/* Create Project Form */}
+        <ProjectForm locale={locale} />
       </header>
 
-      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-bottom border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
-              <th className="p-4 font-semibold text-zinc-900 dark:text-zinc-50">{isRtl ? 'عنوان' : 'Title'}</th>
-              <th className="p-4 font-semibold text-zinc-900 dark:text-zinc-50">{isRtl ? 'وضعیت' : 'Status'}</th>
-              <th className="p-4 font-semibold text-zinc-900 dark:text-zinc-50">{isRtl ? 'عملیات' : 'Actions'}</th>
+            <tr className="border-b border-zinc-800 bg-zinc-900">
+              <th className="p-4 font-semibold text-zinc-300">{isRtl ? 'عنوان' : 'Title'}</th>
+              <th className="p-4 font-semibold text-zinc-300">{isRtl ? 'وضعیت' : 'Status'}</th>
+              <th className="p-4 font-semibold text-zinc-300">{isRtl ? 'عملیات' : 'Actions'}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+          <tbody className="divide-y divide-zinc-800">
             {projects.map((project) => (
-              <tr key={project.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
-                <td className="p-4 text-zinc-700 dark:text-zinc-300">
+              <tr key={project.id} className="hover:bg-zinc-800/50 transition-colors">
+                <td className="p-4 text-zinc-300">
                   {isRtl ? project.titleFa : project.titleEn}
                 </td>
                 <td className="p-4">
                   <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                     project.published 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                      : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400'
+                      ? 'bg-green-900/30 text-green-400' 
+                      : 'bg-zinc-800 text-zinc-400'
                   }`}>
                     {project.published 
                       ? (isRtl ? 'منتشر شده' : 'Published') 
@@ -60,7 +64,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
                   }}>
                     <button
                       type="submit"
-                      className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                      className="text-sm font-medium text-blue-400 hover:text-blue-300"
                     >
                       {project.published 
                         ? (isRtl ? 'تغییر به پیش‌نویس' : 'Unpublish') 
