@@ -12,6 +12,18 @@ export default function Navbar({ locale }: { locale: string }) {
   const pathname = usePathname();
   const isRtl = locale === 'fa';
 
+  // Body scroll lock
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -48,7 +60,7 @@ export default function Navbar({ locale }: { locale: string }) {
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 h-24 flex items-center px-6 md:px-12 ${
-        scrolled ? 'bg-black/90 backdrop-blur-md h-20' : 'bg-gradient-to-b from-black/90 to-transparent'
+        scrolled ? 'bg-black/90 backdrop-blur-md h-20' : 'bg-linear-to-b from-black/90 to-transparent'
       }`}
     >
       <div className="flex w-full items-center justify-between max-w-7xl mx-auto">
@@ -86,23 +98,25 @@ export default function Navbar({ locale }: { locale: string }) {
           </button>
         </div>
 
-        {/* Mobile Toggle */}
+        {/* Mobile Toggle Button */}
         <button 
-          className="md:hidden text-white p-2"
+          className="md:hidden text-white p-2 relative z-[110]"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle menu"
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 top-0 z-[-1] flex flex-col items-center justify-center bg-black px-6"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-xl px-6"
           >
             <div className="flex flex-col items-center gap-8 text-center">
               {navLinks.map((link) => (

@@ -60,7 +60,7 @@ export default function AboutPage() {
       >
         {/* Hero Section */}
         <motion.section variants={itemVariants} className="space-y-6">
-          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none bg-linear-to-r from-white to-gray-500 bg-clip-text text-transparent">
             {isRtl ? 'ما استودیو ماهی سیاه هستیم' : 'We Are Little Black Fish'}
           </h1>
           <div className="h-1.5 w-32 bg-blue-600" />
@@ -108,7 +108,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 flex items-center justify-center p-12">
-             <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/10 to-transparent" />
+             <div className="absolute inset-0 bg-linear-to-tr from-blue-600/10 to-transparent" />
              <div className="text-center space-y-4">
                 <div className="text-8xl font-black text-white/5 select-none">LBF</div>
                 <p className="text-xs font-black uppercase tracking-[0.5em] text-blue-500">Established 2023</p>
