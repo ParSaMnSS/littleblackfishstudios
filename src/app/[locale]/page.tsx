@@ -36,7 +36,7 @@ export default async function HomePage({ params }: HomePageProps) {
       <Hero slides={slides} locale={locale} />
       
       {/* Content Section */}
-      <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <div id="projects" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 scroll-mt-24">
         <header className="mb-16">
           <div className="flex items-center gap-4 mb-4">
             <div className="h-px flex-1 bg-zinc-800"></div>

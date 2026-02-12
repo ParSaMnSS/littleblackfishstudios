@@ -65,6 +65,7 @@ export default function HeroManager({ initialSlides, locale }: { initialSlides: 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <ImageUpload onUploadComplete={setImageUrl} />
+              <input type="hidden" name="imageUrl" value={imageUrl} />
             </div>
             <div className="space-y-4">
               <input name="titleEn" placeholder="Title (EN)" required className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3" />
@@ -89,7 +90,17 @@ export default function HeroManager({ initialSlides, locale }: { initialSlides: 
         {initialSlides.map((slide) => (
           <div key={slide.id} className="group relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
             <div className="relative aspect-video w-full">
-              <Image src={slide.imageUrl} alt="" fill className={`object-cover transition-opacity ${!slide.active ? 'opacity-30' : 'opacity-60'}`} />
+              {slide.imageUrl.match(/\.(mp4|webm|ogg)$/) ? (
+                <video 
+                  src={slide.imageUrl} 
+                  className={`h-full w-full object-cover transition-opacity ${!slide.active ? 'opacity-30' : 'opacity-60'}`} 
+                  muted 
+                  onMouseOver={(e) => e.currentTarget.play()}
+                  onMouseOut={(e) => e.currentTarget.pause()}
+                />
+              ) : (
+                <Image src={slide.imageUrl} alt="" fill className={`object-cover transition-opacity ${!slide.active ? 'opacity-30' : 'opacity-60'}`} />
+              )}
               <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                 <p className="text-sm font-bold text-white">{isRtl ? slide.titleFa : slide.titleEn}</p>
               </div>

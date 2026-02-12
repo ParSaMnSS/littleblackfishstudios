@@ -4,7 +4,7 @@ import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import ConditionalNavbar from "@/components/Layout/ConditionalNavbar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,7 +46,7 @@ export default async function RootLayout({
         className={`${isRtl ? lalezar.className : inter.className} antialiased bg-black text-white min-h-screen`}
       >
         <NextIntlClientProvider messages={messages}>
-          <LanguageSwitcher />
+          <ConditionalNavbar locale={locale} />
           {children}
         </NextIntlClientProvider>
       </body>

@@ -13,5 +13,15 @@
     "published": "Published",
     "hidden": "Hidden",
     "toggle": "Toggle Status"
+  },
+  "Contact": {
+    "title": "Contact Us",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "success": "Message sent successfully!",
+    "error": "Failed to send message. Please try again."
   }
 }

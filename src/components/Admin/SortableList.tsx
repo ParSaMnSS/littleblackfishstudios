@@ -52,7 +52,17 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
 
                     <div className="relative h-12 w-20 overflow-hidden rounded-lg bg-zinc-800">
                       {item.image && (
-                        <Image src={item.image} alt="" fill className="object-cover" />
+                        item.image.match(/\.(mp4|webm|ogg)$/) ? (
+                          <video 
+                            src={item.image} 
+                            className="h-full w-full object-cover" 
+                            muted 
+                            onMouseOver={(e) => e.currentTarget.play()}
+                            onMouseOut={(e) => e.currentTarget.pause()}
+                          />
+                        ) : (
+                          <Image src={item.image} alt="" fill className="object-cover" />
+                        )
                       )}
                     </div>
 
