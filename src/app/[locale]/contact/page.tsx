@@ -5,9 +5,12 @@ import { useTranslations } from 'next-intl';
 import { sendContactEmail } from '@/actions/contact';
 import { Loader2, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useParams } from 'next/navigation';
 
 export default function ContactPage() {
   const t = useTranslations('Contact');
+  const params = useParams();
+  const locale = params?.locale as string;
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -31,6 +34,9 @@ export default function ContactPage() {
     setTimeout(() => setStatus('idle'), 5000);
   }
 
+  const title = locale === 'fa' ? 'شروع پروژه' : 'Start a Project';
+  const btnText = locale === 'fa' ? 'ارسال پیشنهاد' : 'Send Proposal';
+
   return (
     <div className="min-h-screen bg-black pt-44 pb-20 px-6">
       <div className="mx-auto max-w-2xl">
@@ -42,7 +48,7 @@ export default function ContactPage() {
         >
           <div className="space-y-4">
             <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
-              {t('title') === 'Contact Us' ? 'Start a Project' : 'شروع پروژه'}
+              {title}
             </h1>
             <div className="h-1.5 w-24 bg-blue-600" />
           </div>
@@ -75,7 +81,7 @@ export default function ContactPage() {
 
             <div className="space-y-3">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                {t('title') === 'Contact Us' ? 'Project Details' : 'جزئیات پروژه'}
+                {locale === 'fa' ? 'جزئیات پروژه' : 'Project Details'}
               </label>
               <textarea
                 name="message"
@@ -99,7 +105,7 @@ export default function ContactPage() {
                 ) : (
                   <>
                     <Send size={18} />
-                    <span>{t('title') === 'Contact Us' ? 'Send Proposal' : 'ارسال درخواست'}</span>
+                    <span>{btnText}</span>
                   </>
                 )}
               </div>

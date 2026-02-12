@@ -41,6 +41,7 @@ export default function Navbar({ locale }: { locale: string }) {
 
   const navLinks = [
     { href: `/${locale}/#projects`, label: isRtl ? 'پروژه‌ها' : 'Projects' },
+    { href: `/${locale}/about`, label: isRtl ? 'درباره ما' : 'About' },
     { href: `/${locale}/contact`, label: isRtl ? 'تماس' : 'Contact' },
   ];
 
