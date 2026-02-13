@@ -1,59 +1,64 @@
 import type { Metadata } from "next";
 import { Inter, Lalezar } from "next/font/google";
 import "../globals.css";
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { notFound } from "next/navigation";
 import ConditionalNavbar from "@/components/Layout/ConditionalNavbar";
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+	variable: "--font-inter",
+	subsets: ["latin"],
 });
 
 const lalezar = Lalezar({
-  variable: "--font-lalezar",
-  subsets: ["arabic"],
-  weight: "400",
+	variable: "--font-lalezar",
+	subsets: ["arabic"],
+	weight: "400",
 });
 
 export const metadata: Metadata = {
-  title: "Little Black Fish Studios | Creative Agency",
-  description: "A creative digital agency swimming against the current. Web design, development, and branding.",
-  icons: {
-    icon: '/logo-icon.png',
-    apple: '/logo-icon.png',
-  }
+	title: "Little Black Fish Studios | Creative Agency",
+	description:
+		"A creative digital agency swimming against the current. Web design, development, and branding.",
+	icons: {
+		icon: "/logo-icon-white.png",
+		apple: "/logo-icon-white.png",
+	},
 };
 
 interface RootLayoutProps {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+	children: React.ReactNode;
+	params: Promise<{ locale: string }>;
 }
 
 export default async function RootLayout({
-  children,
-  params
+	children,
+	params,
 }: RootLayoutProps) {
-  const { locale } = await params;
+	const { locale } = await params;
 
-  if (!['en', 'fa'].includes(locale)) {
-    notFound();
-  }
+	if (!["en", "fa"].includes(locale)) {
+		notFound();
+	}
 
-  const messages = await getMessages();
-  const isRtl = locale === 'fa';
+	const messages = await getMessages();
+	const isRtl = locale === "fa";
 
-  return (
-    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} className={`${inter.variable} ${lalezar.variable}`}>
-      <body
-        className={`${isRtl ? lalezar.className : inter.className} antialiased bg-black text-white min-h-screen`}
-      >
-        <NextIntlClientProvider messages={messages}>
-          <ConditionalNavbar locale={locale} />
-          {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html
+			lang={locale}
+			dir={isRtl ? "rtl" : "ltr"}
+			className={`${inter.variable} ${lalezar.variable}`}
+		>
+			<body
+				className={`${isRtl ? lalezar.className : inter.className} antialiased bg-black text-white min-h-screen`}
+			>
+				<NextIntlClientProvider messages={messages}>
+					<ConditionalNavbar locale={locale} />
+					{children}
+				</NextIntlClientProvider>
+			</body>
+		</html>
+	);
 }

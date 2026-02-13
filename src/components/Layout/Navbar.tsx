@@ -68,21 +68,13 @@ export default function Navbar({ locale }: { locale: string }) {
 	return (
 		<>
 			<nav
-				className={`fixed top-0 z-50 w-full transition-all duration-500 flex items-center px-6 md:px-12 ${
-					scrolled ? "h-20" : "h-24"
+				className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 h-24 flex items-center px-6 md:px-12 ${
+					scrolled
+						? "bg-black/90 backdrop-blur-md h-20"
+						: "bg-linear-to-b from-black/90 to-transparent"
 				}`}
 			>
-				{/* Layer 1 (The Gradient) */}
-				<div className="absolute inset-0 bg-gradient-to-b from-black/90 to-transparent z-0" />
-
-				{/* Layer 2 (The Solid/Blur) */}
-				<div
-					className={`absolute inset-0 bg-black/80 backdrop-blur-md z-0 transition-opacity duration-500 ${
-						scrolled ? "opacity-100" : "opacity-0"
-					}`}
-				/>
-
-				<div className="relative z-10 flex w-full items-center justify-between max-w-7xl mx-auto">
+				<div className="flex w-full items-center justify-between max-w-7xl mx-auto">
 					{/* Logo Container */}
 					<Link
 						href={`/${locale}`}
@@ -151,7 +143,7 @@ export default function Navbar({ locale }: { locale: string }) {
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						transition={{ duration: 0.3 }}
-						className="fixed inset-0 z-[9999] h-[100dvh] w-screen bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center"
+						className="fixed inset-0 z-9999 h-dvh w-screen bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center"
 					>
 						{/* 2. Close Button inside the overlay */}
 						<button
