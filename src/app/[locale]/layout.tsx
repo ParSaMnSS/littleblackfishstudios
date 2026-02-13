@@ -18,8 +18,12 @@ const lalezar = Lalezar({
 });
 
 export const metadata: Metadata = {
-  title: "Little Black Fish Studios",
-  description: "Software Solutions & Engineering",
+  title: "Little Black Fish Studios | Creative Agency",
+  description: "A creative digital agency swimming against the current. Web design, development, and branding.",
+  icons: {
+    icon: '/logo-icon.png',
+    apple: '/logo-icon.png',
+  }
 };
 
 interface RootLayoutProps {
