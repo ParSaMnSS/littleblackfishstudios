@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar({ locale }: { locale: string }) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [scrolled, setScrolled] = useState(false);
+	const [isScrolled, setIsScrolled] = useState(false);
 	const pathname = usePathname();
 	const isRtl = locale === "fa";
 
@@ -27,7 +27,7 @@ export default function Navbar({ locale }: { locale: string }) {
 
 	useEffect(() => {
 		const handleScroll = () => {
-			setScrolled(window.scrollY > 50);
+			setIsScrolled(window.scrollY > 50);
 		};
 		window.addEventListener("scroll", handleScroll);
 		return () => window.removeEventListener("scroll", handleScroll);
@@ -67,14 +67,21 @@ export default function Navbar({ locale }: { locale: string }) {
 
 	return (
 		<>
-			<nav
-				className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 h-24 flex items-center px-6 md:px-12 ${
-					scrolled
-						? "bg-black/90 backdrop-blur-md h-20"
-						: "bg-linear-to-b from-black/90 to-transparent"
-				}`}
-			>
-				<div className="flex w-full items-center justify-between max-w-7xl mx-auto">
+			<header className="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-300">
+				{/* Background Layers */}
+				<div className="absolute inset-0 z-0 pointer-events-none">
+					{/* Layer 1: Gradient (Always visible) */}
+					<div className="absolute inset-0 bg-linear-to-b from-black/80 to-transparent" />
+
+					{/* Layer 2: Solid Black (Always present, fades in) */}
+					<div
+						className={`absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity duration-500 ease-in-out ${
+							isScrolled ? "opacity-100" : "opacity-0"
+						}`}
+					/>
+				</div>
+
+				<div className="relative z-10 container mx-auto px-6 h-full flex items-center justify-between">
 					{/* Logo Container */}
 					<Link
 						href={`/${locale}`}
@@ -133,7 +140,7 @@ export default function Navbar({ locale }: { locale: string }) {
 						<Menu size={28} />
 					</button>
 				</div>
-			</nav>
+			</header>
 
 			{/* 1. Mobile Menu Overlay */}
 			<AnimatePresence>
