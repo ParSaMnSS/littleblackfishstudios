@@ -34,14 +34,12 @@ export default async function ProjectPage({ params }: Props) {
         {/* Back Button */}
         <Link
           href={`/${locale}`}
-          className={`group mb-8 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white ${
+          className={`relative z-[9999] pointer-events-auto cursor-pointer inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white ${
             isRtl ? "flex-row-reverse" : ""
           }`}
         >
           <ArrowLeft
-            className={`transition-transform group-hover:-translate-x-1 ${
-              isRtl ? "rotate-180 group-hover:translate-x-1" : ""
-            }`}
+            className={isRtl ? "rotate-180" : ""}
             size={18}
           />
           <span>{isRtl ? "بازگشت به پروژه‌ها" : "Back to Projects"}</span>
