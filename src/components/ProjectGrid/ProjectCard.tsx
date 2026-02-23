@@ -4,11 +4,20 @@ import { twMerge } from 'tailwind-merge';
 import Image from 'next/image';
 import Link from 'next/link';
 
+function getYouTubeThumbnail(url: string | null | undefined) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg` : null;
+}
+
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, locale }) => {
   const isRtl = locale === 'fa';
-  
+  const youtubeThumbnailUrl = getYouTubeThumbnail(project.youtubeUrl);
+  const displayImageUrl = youtubeThumbnailUrl || project.imageUrl;
+
   return (
-    <Link 
+    <Link
       href={`/${locale}/projects/${project.slug}`}
       className={twMerge(
         "group block overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-950",
@@ -16,9 +25,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, locale }) => {
       )}
     >
       <div className="relative aspect-video w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-        {project.imageUrl ? (
-          <Image 
-            src={project.imageUrl} 
+        {displayImageUrl ? (
+          <Image
+            src={displayImageUrl}
             alt={isRtl ? project.titleFa : project.titleEn}
             fill
             className="object-cover transition-transform group-hover:scale-105"
