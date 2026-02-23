@@ -1,13 +1,13 @@
 export interface Project {
   id: string;
   slug: string;
-  youtubeUrl: string;
-  image?: string | null;
+  youtubeUrl?: string | null;
+  imageUrl?: string | null;
   published: boolean;
   titleEn: string;
   titleFa: string;
-  descEn: string;
-  descFa: string;
+  descriptionEn?: string | null;
+  descriptionFa?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

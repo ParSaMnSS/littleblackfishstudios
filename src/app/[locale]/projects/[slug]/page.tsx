@@ -25,7 +25,7 @@ export default async function ProjectPage({ params }: Props) {
 
 	// 3. Localize Content
 	const title = isRtl ? project.titleFa : project.titleEn;
-	const description = isRtl ? project.descFa : project.descEn;
+	const description = isRtl ? project.descriptionFa : project.descriptionEn;
 
 	return (
 		<main className="min-h-screen bg-black px-4 py-20 text-white md:px-10">
@@ -33,7 +33,7 @@ export default async function ProjectPage({ params }: Props) {
 				{/* Back Button */}
 				<Link
 					href={`/${locale}`}
-					className={`relative z-[9999] pointer-events-auto cursor-pointer inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white mb-4 ${
+					className={`relative z-9999 pointer-events-auto cursor-pointer inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white mb-4 ${
 						isRtl ? "flex-row-reverse" : ""
 					}`}
 				>
@@ -47,9 +47,11 @@ export default async function ProjectPage({ params }: Props) {
 				</Link>
 
 				{/* Video Section */}
-				<div className="mb-10">
-					<YouTubeEmbed url={project.youtubeUrl} />
-				</div>
+				{project.youtubeUrl && (
+					<div className="mb-10">
+						<YouTubeEmbed url={project.youtubeUrl} />
+					</div>
+				)}
 
 				{/* Text Content */}
 				<div dir={isRtl ? "rtl" : "ltr"} className="space-y-6">
@@ -60,16 +62,6 @@ export default async function ProjectPage({ params }: Props) {
 					<p className="whitespace-pre-wrap text-lg leading-relaxed text-gray-300">
 						{description}
 					</p>
-
-					{/* Metadata */}
-					<div className="mt-8 flex gap-4 text-sm text-gray-500">
-						<span>Slug: {project.slug}</span>
-						<span>•</span>
-						<span>
-							Created:{" "}
-							{new Date(project.createdAt).toLocaleDateString()}
-						</span>
-					</div>
 				</div>
 			</div>
 		</main>

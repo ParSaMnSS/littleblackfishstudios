@@ -96,7 +96,7 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
             items={initialProjects.map(p => ({
               id: p.id,
               title: isRtl ? p.titleFa : p.titleEn,
-              image: p.image,
+              image: p.imageUrl,
               active: p.published
             }))}
             onReorder={(items) => handleReorder(items, 'project')}

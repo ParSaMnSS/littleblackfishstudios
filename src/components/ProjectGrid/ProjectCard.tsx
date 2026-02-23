@@ -16,9 +16,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, locale }) => {
       )}
     >
       <div className="relative aspect-video w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-        {project.image ? (
+        {project.imageUrl ? (
           <Image 
-            src={project.image} 
+            src={project.imageUrl} 
             alt={isRtl ? project.titleFa : project.titleEn}
             fill
             className="object-cover transition-transform group-hover:scale-105"
@@ -34,7 +34,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, locale }) => {
           {isRtl ? project.titleFa : project.titleEn}
         </h3>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400 line-clamp-2">
-          {isRtl ? project.descFa : project.descEn}
+          {isRtl ? project.descriptionFa : project.descriptionEn}
         </p>
       </div>
     </Link>

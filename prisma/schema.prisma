@@ -7,18 +7,18 @@ datasource db {
 }
 
 model Project {
-  id         String   @id @default(cuid())
-  slug       String   @unique
-  youtubeUrl String
-  image      String?
-  published  Boolean  @default(false)
-  titleEn    String
-  titleFa    String
-  descEn     String
-  descFa     String
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  youtubeUrl    String?
+  imageUrl      String?
+  published     Boolean  @default(false)
+  titleEn       String
+  titleFa       String
+  descriptionEn String?
+  descriptionFa String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model HeroSlide {
