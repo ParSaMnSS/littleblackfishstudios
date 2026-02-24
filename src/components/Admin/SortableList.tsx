@@ -60,13 +60,21 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
 
                     {/* Thumbnail Logic */}
                     {(() => {
-                      const displayImage = item.image || getYouTubeThumbnail(item.youtubeUrl);
+                      const mediaUrl = item.image || getYouTubeThumbnail(item.youtubeUrl);
+                      const isVideo = mediaUrl?.toLowerCase().includes('.mp4') || mediaUrl?.toLowerCase().includes('.webm');
                       
                       return (
                         <div className="relative w-12 h-12 bg-zinc-800 rounded overflow-hidden shrink-0">
-                          {displayImage ? (
+                          {isVideo ? (
+                            <video 
+                              src={mediaUrl!} 
+                              className="object-cover w-full h-full" 
+                              muted 
+                              playsInline 
+                            />
+                          ) : mediaUrl ? (
                             <Image 
-                              src={displayImage} 
+                              src={mediaUrl} 
                               alt={item.title || 'Thumbnail'} 
                               fill 
                               className="object-cover" 
