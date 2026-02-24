@@ -97,6 +97,7 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
               id: p.id,
               title: isRtl ? p.titleFa : p.titleEn,
               image: p.imageUrl,
+              youtubeUrl: p.youtubeUrl,
               active: p.published
             }))}
             onReorder={(items) => handleReorder(items, 'project')}

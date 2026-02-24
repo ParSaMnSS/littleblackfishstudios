@@ -1,3 +1,10 @@
+function getYouTubeThumbnail(url: string | null | undefined) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/default.jpg` : null;
+}
+
 'use client';
 
 import React from 'react';
@@ -9,6 +16,7 @@ interface SortableItem {
   id: string;
   title: string;
   image?: string | null;
+  youtubeUrl?: string | null;
   active?: boolean;
 }
 
@@ -50,21 +58,27 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
                       <GripVertical size={20} />
                     </div>
 
-                    <div className="relative h-12 w-20 overflow-hidden rounded-lg bg-zinc-800">
-                      {item.image && (
-                        item.image.match(/\.(mp4|webm|ogg)$/) ? (
-                          <video 
-                            src={item.image} 
-                            className="h-full w-full object-cover" 
-                            muted 
-                            onMouseOver={(e) => e.currentTarget.play()}
-                            onMouseOut={(e) => e.currentTarget.pause()}
-                          />
-                        ) : (
-                          <Image src={item.image} alt="" fill className="object-cover" />
-                        )
-                      )}
-                    </div>
+                    {/* Thumbnail Logic */}
+                    {(() => {
+                      const displayImage = item.image || getYouTubeThumbnail(item.youtubeUrl);
+                      
+                      return (
+                        <div className="relative w-12 h-12 bg-zinc-800 rounded overflow-hidden shrink-0">
+                          {displayImage ? (
+                            <Image 
+                              src={displayImage} 
+                              alt={item.title || 'Thumbnail'} 
+                              fill 
+                              className="object-cover" 
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                              {/* Fallback empty state */}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     <div className="flex-1 min-w-0">
                       <h4 className="truncate text-sm font-medium text-white">{item.title}</h4>
