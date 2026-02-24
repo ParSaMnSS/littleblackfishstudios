@@ -6,6 +6,7 @@ import ProjectForm from './ProjectForm';
 import HeroForm from './HeroForm';
 import { updateOrder } from '@/actions/reorder';
 import { deleteHeroSlide, toggleHeroStatus } from '@/actions/hero';
+import { deleteProject } from '@/actions/project';
 import { toggleProjectStatus } from '@/actions/admin'; // Assuming it's in admin.ts
 import { useRouter } from 'next/navigation';
 import { Plus, LayoutGrid, Image as ImageIcon } from 'lucide-react';
@@ -34,9 +35,12 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
 
   const handleDeleteProject = async (project: any) => {
     if (confirm(isRtl ? 'آیا از حذف این پروژه مطمئن هستید؟' : 'Are you sure you want to delete this project?')) {
-      // We should ideally have a deleteProject action. 
-      // For now, let's assume it exists or we use a common delete logic.
-      // Skipping implementation details of deleteProject for brevity unless needed.
+      const result = await deleteProject(project.id);
+      if (result.success) {
+        router.refresh();
+      } else {
+        alert(isRtl ? 'خطا در حذف پروژه' : 'Failed to delete project');
+      }
     }
   };
 

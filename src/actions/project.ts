@@ -81,3 +81,37 @@ export async function updateProject(id: string, formData: FormData) {
     return { success: false, error: "Failed to update project" };
   }
 }
+
+export async function deleteProject(id: string) {
+  try {
+    // 1. Fetch project to get imageUrl for cleanup
+    const project = await prisma.project.findUnique({
+      where: { id },
+      select: { imageUrl: true }
+    });
+
+    if (!project) {
+      return { success: false, error: "Project not found" };
+    }
+
+    // 2. Optional: If you use Vercel Blob, delete the image if it's not a YouTube thumbnail
+    // if (project.imageUrl && !project.imageUrl.includes('youtube.com')) {
+    //   const { del } = await import('@vercel/blob');
+    //   await del(project.imageUrl);
+    // }
+
+    // 3. Delete from database
+    await prisma.project.delete({
+      where: { id },
+    });
+
+    // 4. Revalidate cache
+    revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    return { success: false, error: "Failed to delete project" };
+  }
+}
