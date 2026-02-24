@@ -1,11 +1,11 @@
+'use client';
+
 function getYouTubeThumbnail(url: string | null | undefined) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/default.jpg` : null;
 }
-
-'use client';
 
 import React from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
