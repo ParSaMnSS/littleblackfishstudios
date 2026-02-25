@@ -36,7 +36,6 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
       }
     } else {
       const data = {
-        slug: formData.get('slug') as string,
         titleEn: formData.get('titleEn') as string,
         titleFa: formData.get('titleFa') as string,
         descriptionEn: formData.get('descriptionEn') as string,
@@ -82,17 +81,6 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
                 ? '(اختیاری. در صورت خالی بودن از تامنیل یوتیوب استفاده می‌شود)' 
                 : '(Optional. Will use YouTube thumbnail if left blank)'}
             </p>
-          </div>
-          
-          <div>
-            <label className="block text-xs font-bold uppercase text-zinc-500 mb-1 ml-1">{isRtl ? 'نامک' : 'Slug'}</label>
-            <input
-              name="slug"
-              defaultValue={initialData?.slug}
-              placeholder="my-cool-project"
-              required
-              className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
           </div>
           
           <div>

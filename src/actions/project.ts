@@ -3,6 +3,14 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+function generateSlug(title: string) {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-') // Replace spaces and special chars with hyphens
+    .replace(/(^-|-$)+/g, '');   // Remove leading or trailing hyphens
+}
+
 function getYouTubeId(url: string) {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&]*).*/;
   const match = url.match(regExp);
@@ -20,7 +28,7 @@ function processImageUrl(imageUrl: string | null, youtubeUrl: string | null) {
 }
 
 export async function createProject(data: {
-  slug: string;
+  slug?: string;
   titleEn: string;
   titleFa: string;
   descriptionEn?: string;
@@ -31,10 +39,12 @@ export async function createProject(data: {
 }) {
   try {
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
+    const slug = generateSlug(data.titleEn);
 
     const project = await prisma.project.create({
       data: {
         ...data,
+        slug,
         imageUrl: finalImageUrl,
       },
     });
@@ -55,10 +65,10 @@ export async function updateProject(id: string, formData: FormData) {
     const descriptionEn = formData.get('descriptionEn') as string;
     const descriptionFa = formData.get('descriptionFa') as string;
     const youtubeUrl = formData.get('youtubeUrl') as string;
-    const slug = formData.get('slug') as string;
     const imageUrl = formData.get('imageUrl') as string;
 
     const finalImageUrl = processImageUrl(imageUrl, youtubeUrl);
+    const slug = generateSlug(titleEn);
 
     await prisma.project.update({
       where: { id },
