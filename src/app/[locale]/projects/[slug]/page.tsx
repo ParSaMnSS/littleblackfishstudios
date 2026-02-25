@@ -13,30 +13,26 @@ export default async function ProjectPage({ params }: Props) {
 	const { slug, locale } = await params;
 	const isRtl = locale === "fa";
 
-	// 1. Fetch all published projects sorted by order to determine navigation
+	// 1. Fetch the exact project FIRST so we don't crash on unpublished previews
+	const project = await prisma.project.findUnique({
+		where: { slug },
+	});
+
+	if (!project) {
+		notFound();
+	}
+
+	// 2. Fetch the project list to determine Next/Prev arrows (removed strict published filter)
 	const allProjects = await prisma.project.findMany({
-		where: { published: true },
 		orderBy: { order: "asc" },
 		select: { id: true, slug: true, titleEn: true, titleFa: true },
 	});
 
 	const currentIndex = allProjects.findIndex((p) => p.slug === slug);
 
-	// 2. Security Check: If not found, show 404
-	if (currentIndex === -1) {
-		notFound();
-	}
-
-	const project = await prisma.project.findUnique({
-		where: { slug },
-	});
-
-	if (!project || !project.published) {
-		notFound();
-	}
-
+	// 3. Safely calculate adjacent projects
 	const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
-	const nextProject = currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
+	const nextProject = currentIndex !== -1 && currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
 
 	// 3. Localize Content
 	const title = isRtl ? project.titleFa : project.titleEn;
