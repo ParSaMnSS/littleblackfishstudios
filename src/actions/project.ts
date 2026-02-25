@@ -94,11 +94,15 @@ export async function deleteProject(id: string) {
       return { success: false, error: "Project not found" };
     }
 
-    // 2. Optional: If you use Vercel Blob, delete the image if it's not a YouTube thumbnail
-    // if (project.imageUrl && !project.imageUrl.includes('youtube.com')) {
-    //   const { del } = await import('@vercel/blob');
-    //   await del(project.imageUrl);
-    // }
+    // 2. Delete the image if it's hosted on Vercel Blob
+    if (project.imageUrl && project.imageUrl.includes('vercel-storage.com')) {
+      const { del } = await import('@vercel/blob');
+      try {
+        await del(project.imageUrl);
+      } catch (e) {
+        console.error("Failed to delete blob:", e);
+      }
+    }
 
     // 3. Delete from database
     await prisma.project.delete({

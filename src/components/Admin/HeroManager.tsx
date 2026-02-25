@@ -90,7 +90,7 @@ export default function HeroManager({ initialSlides, locale }: { initialSlides: 
         {initialSlides.map((slide) => (
           <div key={slide.id} className="group relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
             <div className="relative aspect-video w-full">
-              {slide.imageUrl.match(/\.(mp4|webm|ogg)$/) ? (
+              {slide.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
                 <video 
                   src={slide.imageUrl} 
                   className={`h-full w-full object-cover transition-opacity ${!slide.active ? 'opacity-30' : 'opacity-60'}`} 

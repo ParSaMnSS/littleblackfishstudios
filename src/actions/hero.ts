@@ -58,7 +58,13 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
     await prisma.heroSlide.delete({ where: { id } });
 
     // 2. Delete from Vercel Blob
-    await del(imageUrl);
+    if (imageUrl && imageUrl.includes('vercel-storage.com')) {
+      try {
+        await del(imageUrl);
+      } catch (e) {
+        console.error("Failed to delete hero blob:", e);
+      }
+    }
 
     revalidatePath('/[locale]', 'layout');
     return { success: true };
