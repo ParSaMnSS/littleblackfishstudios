@@ -11,6 +11,8 @@ model Project {
   slug          String   @unique
   youtubeUrl    String?
   imageUrl      String?
+  mediaType     String   @default("youtube")
+  galleryUrls   String[] @default([])
   published     Boolean  @default(false)
   titleEn       String
   titleFa       String

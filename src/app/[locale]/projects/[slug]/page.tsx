@@ -1,7 +1,8 @@
 // src/app/[locale]/projects/[slug]/page.tsx
 import { notFound } from "next/navigation";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 
@@ -13,33 +14,35 @@ export default async function ProjectPage({ params }: Props) {
 	const { slug, locale } = await params;
 	const isRtl = locale === "fa";
 
-	// 1. Fetch the exact project FIRST so we don't crash on unpublished previews
+	// 1. Fetch the project - ensuring we only show published projects to public
 	const project = await prisma.project.findUnique({
 		where: { slug },
 	});
 
-	if (!project) {
+	// If not found or not published, show 404
+	if (!project || (!project.published)) {
 		notFound();
 	}
 
-	// 2. Fetch the project list to determine Next/Prev arrows (removed strict published filter)
+	// 2. Fetch all published projects for navigation list
 	const allProjects = await prisma.project.findMany({
+		where: { published: true },
 		orderBy: { order: "asc" },
 		select: { id: true, slug: true, titleEn: true, titleFa: true },
 	});
 
 	const currentIndex = allProjects.findIndex((p) => p.slug === slug);
 
-	// 3. Safely calculate adjacent projects
+	// 3. Calculate adjacent projects
 	const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
 	const nextProject = currentIndex !== -1 && currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
 
-	// 3. Localize Content
+	// 4. Localize Content
 	const title = isRtl ? project.titleFa : project.titleEn;
 	const description = isRtl ? project.descriptionFa : project.descriptionEn;
 
 	return (
-		<main className="relative min-h-screen bg-black px-4 py-20 text-white md:px-10">
+		<main className="relative min-h-screen bg-black px-4 py-20 text-white md:px-10 overflow-x-hidden">
 			{/* Desktop Floating Navigation */}
 			{prevProject && (
 				<Link
@@ -78,38 +81,79 @@ export default async function ProjectPage({ params }: Props) {
 					</span>
 				</Link>
 
-				{/* Video Section */}
-				{project.youtubeUrl && (
-					<div className="mb-10">
+				{/* Media Section */}
+				<section className="mb-12">
+					{project.mediaType === 'youtube' && project.youtubeUrl ? (
+						<div className="shadow-2xl shadow-blue-500/10">
+							<YouTubeEmbed url={project.youtubeUrl} />
+						</div>
+					) : project.mediaType === 'gallery' && project.galleryUrls.length > 0 ? (
+						<div className="relative">
+							<div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 scrollbar-hide">
+								{(project.galleryUrls as string[]).map((url: string, index: number) => (
+									<div 
+										key={url + index}
+										className="relative min-w-[85%] md:min-w-[75%] aspect-video snap-center rounded-2xl overflow-hidden bg-zinc-900 shadow-xl border border-white/5"
+									>
+										<Image 
+											src={url} 
+											alt={`${title} - Gallery Image ${index + 1}`}
+											fill 
+											sizes="(max-width: 768px) 85vw, 75vw"
+											className="object-cover"
+											priority={index === 0}
+										/>
+									</div>
+								))}
+							</div>
+							{/* Hint for scrolling */}
+							<div className={`flex items-center gap-2 text-[10px] uppercase tracking-widest text-zinc-500 mt-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
+								<Info size={12} className="text-blue-500" />
+								<span>{isRtl ? 'برای مشاهده تصاویر بیشتر به طرفین بکشید' : 'Swipe/Scroll for more images'}</span>
+							</div>
+						</div>
+					) : project.youtubeUrl ? (
 						<YouTubeEmbed url={project.youtubeUrl} />
-					</div>
-				)}
+					) : (
+                        <div className="relative aspect-video rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 shadow-xl">
+                            {project.imageUrl && (
+                                <Image 
+                                    src={project.imageUrl} 
+                                    alt={title} 
+                                    fill 
+                                    className="object-cover opacity-50 grayscale"
+                                    sizes="(max-width: 768px) 100vw, 800px"
+                                />
+                            )}
+                        </div>
+                    )}
+				</section>
 
 				{/* Text Content */}
-				<div dir={isRtl ? "rtl" : "ltr"} className="space-y-6">
-					<h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
+				<article dir={isRtl ? "rtl" : "ltr"} className="space-y-6">
+					<h1 className="text-4xl font-bold md:text-6xl tracking-tight leading-tight text-white">{title}</h1>
 
-					<div className="h-1 w-20 bg-blue-500/50"></div>
+					<div className="h-1.5 w-24 bg-gradient-to-r from-blue-600 to-blue-600/20 rounded-full"></div>
 
-					<p className="whitespace-pre-wrap text-lg leading-relaxed text-gray-300">
+					<p className="whitespace-pre-wrap text-lg md:text-xl leading-relaxed text-zinc-400 font-light">
 						{description}
 					</p>
-				</div>
+				</article>
 
 				{/* Mobile & Bottom Navigation Footer */}
-				<div className="mt-20 border-t border-white/10 pt-10">
-					<div className={`flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+				<nav className="mt-24 border-t border-white/10 pt-12">
+					<div className={`flex flex-col gap-10 sm:flex-row sm:items-center sm:justify-between ${isRtl ? "sm:flex-row-reverse" : ""}`}>
 						{prevProject ? (
 							<Link
 								href={`/${locale}/projects/${prevProject.slug}`}
-								className={`group flex flex-col gap-2 ${isRtl ? "items-end text-right" : "items-start text-left"}`}
+								className={`group flex flex-col gap-3 transition-opacity hover:opacity-80 ${isRtl ? "items-end text-right" : "items-start text-left"}`}
 							>
-								<span className="text-xs uppercase tracking-widest text-zinc-500">
-									{isRtl ? "پروژه قبلی" : "Previous Project"}
+								<span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+									{isRtl ? "پروژه قبلی" : "Previous"}
 								</span>
-								<div className={`flex items-center gap-2 text-white transition-colors group-hover:text-blue-400 ${isRtl ? "flex-row-reverse" : ""}`}>
-									<ChevronLeft size={20} className={isRtl ? "rotate-180" : ""} />
-									<span className="text-lg font-medium">{isRtl ? prevProject.titleFa : prevProject.titleEn}</span>
+								<div className={`flex items-center gap-3 text-white transition-transform group-hover:translate-x-${isRtl ? '1' : '-1'} ${isRtl ? "flex-row-reverse" : ""}`}>
+									<ChevronLeft size={24} className={`${isRtl ? "rotate-180" : ""} text-blue-500`} />
+									<span className="text-xl font-semibold">{isRtl ? prevProject.titleFa : prevProject.titleEn}</span>
 								</div>
 							</Link>
 						) : <div />}
@@ -117,19 +161,19 @@ export default async function ProjectPage({ params }: Props) {
 						{nextProject ? (
 							<Link
 								href={`/${locale}/projects/${nextProject.slug}`}
-								className={`group flex flex-col gap-2 ${isRtl ? "items-start text-left" : "items-end text-right"}`}
+								className={`group flex flex-col gap-3 transition-opacity hover:opacity-80 ${isRtl ? "items-start text-left" : "items-end text-right"}`}
 							>
-								<span className="text-xs uppercase tracking-widest text-zinc-500">
-									{isRtl ? "پروژه بعدی" : "Next Project"}
+								<span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+									{isRtl ? "پروژه بعدی" : "Next"}
 								</span>
-								<div className={`flex items-center gap-2 text-white transition-colors group-hover:text-blue-400 ${isRtl ? "flex-row-reverse" : ""}`}>
-									<span className="text-lg font-medium">{isRtl ? nextProject.titleFa : nextProject.titleEn}</span>
-									<ChevronRight size={20} className={isRtl ? "rotate-180" : ""} />
+								<div className={`flex items-center gap-3 text-white transition-transform group-hover:translate-x-${isRtl ? '-1' : '1'} ${isRtl ? "flex-row-reverse" : ""}`}>
+									<span className="text-xl font-semibold">{isRtl ? nextProject.titleFa : nextProject.titleEn}</span>
+									<ChevronRight size={24} className={`${isRtl ? "rotate-180" : ""} text-blue-500`} />
 								</div>
 							</Link>
 						) : <div />}
 					</div>
-				</div>
+				</nav>
 			</div>
 		</main>
 	);

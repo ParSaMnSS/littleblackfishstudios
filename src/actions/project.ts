@@ -36,6 +36,8 @@ export async function createProject(data: {
   youtubeUrl?: string;
   imageUrl?: string;
   published: boolean;
+  mediaType?: string;
+  galleryUrls?: string[];
 }) {
   try {
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
@@ -66,6 +68,8 @@ export async function updateProject(id: string, formData: FormData) {
     const descriptionFa = formData.get('descriptionFa') as string;
     const youtubeUrl = formData.get('youtubeUrl') as string;
     const imageUrl = formData.get('imageUrl') as string;
+    const mediaType = formData.get('mediaType') as string || 'youtube';
+    const galleryUrls = JSON.parse(formData.get('galleryUrls') as string || '[]');
 
     const finalImageUrl = processImageUrl(imageUrl, youtubeUrl);
     const slug = generateSlug(titleEn);
@@ -79,7 +83,9 @@ export async function updateProject(id: string, formData: FormData) {
         descriptionFa,
         youtubeUrl,
         slug,
-        imageUrl: finalImageUrl
+        imageUrl: finalImageUrl,
+        mediaType,
+        galleryUrls
       },
     });
 
