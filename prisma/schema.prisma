@@ -29,7 +29,8 @@ model HeroSlide {
   titleFa    String?
   subtitleEn String?
   subtitleFa String?
-  imageUrl   String
+  imageUrl   String?
+  youtubeUrl String?
   order      Int      @default(0)
   active     Boolean  @default(true)
   createdAt  DateTime @default(now())

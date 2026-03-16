@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import ImageUpload from './ImageUpload';
 import { createHeroSlide, updateHeroSlide } from '@/actions/hero';
 import { useRouter } from 'next/navigation';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, Youtube } from 'lucide-react';
 
 interface HeroFormProps {
   locale: string;
@@ -17,6 +17,7 @@ export default function HeroForm({ locale, initialData, onClose }: HeroFormProps
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
+  const [youtubeUrl, setYoutubeUrl] = useState(initialData?.youtubeUrl || '');
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,6 +25,7 @@ export default function HeroForm({ locale, initialData, onClose }: HeroFormProps
 
     const formData = new FormData(e.currentTarget);
     formData.append('imageUrl', imageUrl);
+    formData.append('youtubeUrl', youtubeUrl);
 
     if (initialData) {
       formData.append('currentImageUrl', initialData.imageUrl || '');
@@ -64,6 +66,21 @@ export default function HeroForm({ locale, initialData, onClose }: HeroFormProps
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl} />
+          
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Youtube className="h-5 w-5 text-red-500" />
+            </div>
+            <input 
+              name="youtubeUrlRaw" // not used in FormData since we append state directly
+              type="text"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="YouTube URL (Optional fallback/alternative)" 
+              className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 pl-10 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" 
+            />
+          </div>
+
           <input 
             name="order" 
             type="number" 

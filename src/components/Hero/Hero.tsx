@@ -11,7 +11,8 @@ interface HeroSlide {
 	titleFa: string | null;
 	subtitleEn: string | null;
 	subtitleFa: string | null;
-	imageUrl: string;
+	imageUrl: string | null;
+	youtubeUrl: string | null;
 }
 
 interface HeroProps {
@@ -53,6 +54,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	};
 
 	const isVideo = (url: string) => /\.(mp4|webm|ogg|mov)$/i.test(url);
+	const getYouTubeId = (url: string) => url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{11})/)?.[1];
 
 	if (!slides || slides.length === 0) return null;
 
@@ -60,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	const title = isRtl ? currentSlide.titleFa : currentSlide.titleEn;
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
-	console.log("Current Hero Media URL:", currentSlide.imageUrl);
+	console.log("Current Hero Media URL:", currentSlide.youtubeUrl || currentSlide.imageUrl);
 
 	return (
 		<div className="relative h-screen w-full overflow-hidden bg-black">
@@ -80,7 +82,16 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 						transition={{ duration: 12, ease: "easeOut" }}
 						className="absolute inset-0"
 					>
-						{isVideo(currentSlide.imageUrl) ? (
+						{currentSlide.youtubeUrl ? (
+							<div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden">
+								<iframe
+									src={`https://www.youtube.com/embed/${getYouTubeId(currentSlide.youtubeUrl)}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&playlist=${getYouTubeId(currentSlide.youtubeUrl)}`}
+									className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
+									allow="autoplay; encrypted-media"
+									frameBorder="0"
+								/>
+							</div>
+						) : currentSlide.imageUrl && isVideo(currentSlide.imageUrl) ? (
 							<video
 								key={currentSlide.imageUrl} // Force re-render on slide change
 								src={currentSlide.imageUrl}
@@ -91,7 +102,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 								playsInline
 								preload="auto"
 							/>
-						) : (
+						) : currentSlide.imageUrl ? (
 							<Image
 								src={currentSlide.imageUrl}
 								alt={title || "Hero background"}
@@ -99,7 +110,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 								priority
 								className="object-cover"
 							/>
-						)}
+						) : null}
 					</motion.div>
 
 					{/* Content Container */}
