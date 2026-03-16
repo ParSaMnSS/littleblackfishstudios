@@ -17,13 +17,15 @@ export async function POST(request: Request): Promise<NextResponse> {
         // if (!session) throw new Error('Unauthenticated');
 
         return {
+          maximumSizeInBytes: 100 * 1024 * 1024, // 100MB limit for video uploads
           allowedContentTypes: [
             'image/jpeg', 
             'image/png', 
             'image/gif', 
             'image/webp',
             'video/mp4',
-            'video/webm'
+            'video/webm',
+            'video/quicktime'
           ],
           addRandomSuffix: true,
           tokenPayload: JSON.stringify({

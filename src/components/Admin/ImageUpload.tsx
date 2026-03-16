@@ -17,11 +17,17 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)$/) || url.startsWith('data:video');
+  const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg|mov)$/i) || url.startsWith('data:video');
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Optional: Warn if file is too large (e.g., > 100MB)
+    if (file.size > 100 * 1024 * 1024) {
+      setError('File is too large. Maximum size is 100MB.');
+      return;
+    }
 
     setError(null);
     setProgress(0);
@@ -41,9 +47,9 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
       });
 
       onUploadComplete(newBlob.url);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Upload failed:', err);
-      setError('Upload failed. Please try again.');
+      setError(err?.message || 'Upload failed. Please try again.');
       setPreview(defaultValue || null);
     } finally {
       setUploading(false);
@@ -118,7 +124,7 @@ export default function ImageUpload({ onUploadComplete, defaultValue }: ImageUpl
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden" 
-        accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
+        accept="image/png, image/jpeg, image/webp, video/mp4, video/webm, video/quicktime"
         disabled={uploading}
       />
     </div>
