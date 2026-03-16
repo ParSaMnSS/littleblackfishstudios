@@ -52,7 +52,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 		return () => clearTimeout(resumeTimer);
 	};
 
-	const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)$/);
+	const isVideo = (url: string) => /\.(mp4|webm|ogg|mov)$/i.test(url);
 
 	if (!slides || slides.length === 0) return null;
 
@@ -82,17 +82,15 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 					>
 						{isVideo(currentSlide.imageUrl) ? (
 							<video
-								key={currentSlide.imageUrl}
+								key={currentSlide.imageUrl} // Force re-render on slide change
+								src={currentSlide.imageUrl}
+								className="absolute inset-0 h-full w-full object-cover"
 								autoPlay
 								muted
 								loop
 								playsInline
 								preload="auto"
-								className="absolute inset-0 h-full w-full object-cover"
-							>
-								<source src={currentSlide.imageUrl} type="video/mp4" />
-								Your browser does not support the video tag.
-							</video>
+							/>
 						) : (
 							<Image
 								src={currentSlide.imageUrl}
