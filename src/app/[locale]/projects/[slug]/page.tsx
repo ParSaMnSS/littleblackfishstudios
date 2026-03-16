@@ -133,7 +133,7 @@ export default async function ProjectPage({ params }: Props) {
 				<article dir={isRtl ? "rtl" : "ltr"} className="space-y-6">
 					<h1 className="text-4xl font-bold md:text-6xl tracking-tight leading-tight text-white">{title}</h1>
 
-					<div className="h-1.5 w-24 bg-gradient-to-r from-blue-600 to-blue-600/20 rounded-full"></div>
+					<div className="h-1.5 w-24 bg-linear-to-r from-blue-600 to-blue-600/20 rounded-full"></div>
 
 					<p className="whitespace-pre-wrap text-lg md:text-xl leading-relaxed text-zinc-400 font-light">
 						{description}
