@@ -60,6 +60,8 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	const title = isRtl ? currentSlide.titleFa : currentSlide.titleEn;
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
+	console.log("Current Hero Media URL:", currentSlide.imageUrl);
+
 	return (
 		<div className="relative h-screen w-full overflow-hidden bg-black">
 			<AnimatePresence mode="wait">
@@ -80,13 +82,17 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 					>
 						{isVideo(currentSlide.imageUrl) ? (
 							<video
-								src={currentSlide.imageUrl}
-								className="h-full w-full object-cover"
+								key={currentSlide.imageUrl}
 								autoPlay
 								muted
 								loop
 								playsInline
-							/>
+								preload="auto"
+								className="absolute inset-0 h-full w-full object-cover"
+							>
+								<source src={currentSlide.imageUrl} type="video/mp4" />
+								Your browser does not support the video tag.
+							</video>
 						) : (
 							<Image
 								src={currentSlide.imageUrl}
