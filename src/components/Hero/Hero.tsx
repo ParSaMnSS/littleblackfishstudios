@@ -54,7 +54,10 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	};
 
 	const isVideo = (url: string) => /\.(mp4|webm|ogg|mov)$/i.test(url);
-	const getYouTubeId = (url: string) => url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{11})/)?.[1];
+	const getYouTubeId = (url: string) =>
+		url.match(
+			/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{11})/,
+		)?.[1];
 
 	if (!slides || slides.length === 0) return null;
 
@@ -62,7 +65,10 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	const title = isRtl ? currentSlide.titleFa : currentSlide.titleEn;
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
-	console.log("Current Hero Media URL:", currentSlide.youtubeUrl || currentSlide.imageUrl);
+	console.log(
+		"Current Hero Media URL:",
+		currentSlide.youtubeUrl || currentSlide.imageUrl,
+	);
 
 	return (
 		<div className="relative h-screen w-full overflow-hidden bg-black">
@@ -91,10 +97,11 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 									frameBorder="0"
 								/>
 							</div>
-						) : currentSlide.imageUrl && isVideo(currentSlide.imageUrl) ? (
+						) : currentSlide.imageUrl &&
+						  isVideo(currentSlide.imageUrl) ? (
 							<video
-								key={currentSlide.imageUrl} // Force re-render on slide change
-								src={currentSlide.imageUrl}
+								key={currentSlide.imageUrl}
+								src={`${currentSlide.imageUrl}?reload=true`} // Add this query param
 								className="absolute inset-0 h-full w-full object-cover"
 								autoPlay
 								muted
