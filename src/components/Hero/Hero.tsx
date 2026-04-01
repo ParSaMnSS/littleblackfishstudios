@@ -100,8 +100,8 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 						) : currentSlide.imageUrl &&
 						  isVideo(currentSlide.imageUrl) ? (
 							<video
-								key={currentSlide.imageUrl}
-								src={`${currentSlide.imageUrl}?reload=true`} // Add this query param
+								key={currentSlide.imageUrl} // Force re-render on slide change
+								src={currentSlide.imageUrl}
 								className="absolute inset-0 h-full w-full object-cover"
 								autoPlay
 								muted
