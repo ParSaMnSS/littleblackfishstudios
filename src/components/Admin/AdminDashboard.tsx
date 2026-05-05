@@ -31,7 +31,6 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
       order: index,
     }));
     await updateOrder(itemsWithOrder, type);
-    router.refresh();
   };
 
   const handleDeleteProject = async (project: any) => {

@@ -33,7 +33,8 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
 
   useEffect(() => {
     setLocalItems(items);
-  }, [items]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.map(i => i.id).join(',')]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
