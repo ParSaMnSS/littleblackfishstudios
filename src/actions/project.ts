@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 function generateSlug(title: string) {
@@ -53,7 +53,7 @@ export async function createProject(data: {
   galleryUrls?: string[];
 }) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
     const slug = generateSlug(data.titleEn);
 
@@ -84,7 +84,7 @@ export async function createProject(data: {
 
 export async function updateProject(id: string, formData: FormData) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
     const titleEn = formData.get('titleEn') as string;
     const titleFa = formData.get('titleFa') as string;
     const descriptionEn = formData.get('descriptionEn') as string;
@@ -122,7 +122,7 @@ export async function updateProject(id: string, formData: FormData) {
 
 export async function deleteProject(id: string) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
 
     const { data: project, error: fetchError } = await supabase
       .from('Project')

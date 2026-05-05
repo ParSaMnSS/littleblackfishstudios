@@ -1,11 +1,11 @@
 'use server';
 
-import { createServerClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function toggleProjectStatus(id: string, currentStatus: boolean) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
 
     const { error } = await supabase
       .from('Project')

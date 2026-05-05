@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function updateOrder(
@@ -8,7 +8,7 @@ export async function updateOrder(
   model: 'project' | 'hero'
 ) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
     const table = model === 'project' ? 'Project' : 'HeroSlide';
 
     const rows = items.map(({ id, order }) => ({ id, order }));

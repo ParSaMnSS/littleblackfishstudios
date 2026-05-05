@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 function extractStoragePath(url: string, bucket: string): string | null {
@@ -16,7 +16,7 @@ function isSupabaseUrl(url: string): boolean {
 
 export async function createHeroSlide(formData: FormData) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
     const titleEn = (formData.get('titleEn') as string) || null;
     const titleFa = (formData.get('titleFa') as string) || null;
     const subtitleEn = (formData.get('subtitleEn') as string) || null;
@@ -51,7 +51,7 @@ export async function createHeroSlide(formData: FormData) {
 
 export async function toggleHeroStatus(id: string, currentStatus: boolean) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
 
     const { error } = await supabase
       .from('HeroSlide')
@@ -70,7 +70,7 @@ export async function toggleHeroStatus(id: string, currentStatus: boolean) {
 
 export async function deleteHeroSlide(id: string, imageUrl: string) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
 
     const { error: deleteError } = await supabase.from('HeroSlide').delete().eq('id', id);
     if (deleteError) throw deleteError;
@@ -93,7 +93,7 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
 
 export async function updateHeroSlide(id: string, formData: FormData) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServiceClient();
     const titleEn = (formData.get('titleEn') as string) || null;
     const titleFa = (formData.get('titleFa') as string) || null;
     const subtitleEn = (formData.get('subtitleEn') as string) || null;
