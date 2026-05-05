@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createServerClient } from '@/lib/supabase/server';
 import { YouTubeEmbed } from '@/components/YouTubeEmbed';
+import GalleryCarousel from '@/components/GalleryCarousel';
 import { serializeProject } from '@/lib/serializers';
 
 interface Props {
@@ -94,37 +95,11 @@ export default async function ProjectPage({ params }: Props) {
               <YouTubeEmbed url={project.youtubeUrl} />
             </div>
           ) : project.mediaType === 'gallery' && project.galleryUrls.length > 0 ? (
-            <div className="relative">
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 scrollbar-hide">
-                {project.galleryUrls.map((url: string, index: number) => (
-                  <div
-                    key={url + index}
-                    className="relative min-w-[85%] md:min-w-[75%] aspect-video snap-center rounded-2xl overflow-hidden bg-zinc-900 shadow-xl border border-white/5"
-                  >
-                    <Image
-                      src={url}
-                      alt={`${title} - Gallery Image ${index + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 85vw, 75vw"
-                      className="object-cover"
-                      priority={index === 0}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div
-                className={`flex items-center gap-2 text-[10px] uppercase tracking-widest text-zinc-500 mt-2 ${
-                  isRtl ? 'flex-row-reverse' : ''
-                }`}
-              >
-                <Info size={12} className="text-blue-500" />
-                <span>
-                  {isRtl
-                    ? 'برای مشاهده تصاویر بیشتر به طرفین بکشید'
-                    : 'Swipe/Scroll for more images'}
-                </span>
-              </div>
-            </div>
+            <GalleryCarousel
+              galleryUrls={project.galleryUrls}
+              title={title ?? ''}
+              isRtl={isRtl}
+            />
           ) : project.youtubeUrl ? (
             <YouTubeEmbed url={project.youtubeUrl} />
           ) : (
