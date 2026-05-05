@@ -65,11 +65,6 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	const title = isRtl ? currentSlide.titleFa : currentSlide.titleEn;
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
-	console.log(
-		"Current Hero Media URL:",
-		currentSlide.youtubeUrl || currentSlide.imageUrl,
-	);
-
 	return (
 		<div className="relative h-screen w-full overflow-hidden bg-black">
 			<AnimatePresence mode="wait">
