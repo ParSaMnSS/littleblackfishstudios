@@ -1,14 +1,14 @@
 'use server';
 
-import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { createServerClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 function generateSlug(title: string) {
   return title
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, '-') // Replace spaces and special chars with hyphens
-    .replace(/(^-|-$)+/g, '');   // Remove leading or trailing hyphens
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
 }
 
 function getYouTubeId(url: string) {
@@ -27,6 +27,19 @@ function processImageUrl(imageUrl: string | null, youtubeUrl: string | null) {
   return imageUrl;
 }
 
+// Extract the storage path from a Supabase public URL.
+// URL shape: https://<ref>.supabase.co/storage/v1/object/public/<bucket>/<path>
+function extractStoragePath(url: string, bucket: string): string | null {
+  const marker = `/object/public/${bucket}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.slice(idx + marker.length);
+}
+
+function isSupabaseUrl(url: string): boolean {
+  return url.includes('.supabase.co/storage/');
+}
+
 export async function createProject(data: {
   slug?: string;
   titleEn: string;
@@ -40,98 +53,118 @@ export async function createProject(data: {
   galleryUrls?: string[];
 }) {
   try {
+    const supabase = await createServerClient();
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
     const slug = generateSlug(data.titleEn);
 
-    const project = await prisma.project.create({
-      data: {
-        ...data,
-        slug,
-        imageUrl: finalImageUrl,
-      },
+    const { error } = await supabase.from('Project').insert({
+      slug,
+      title_en: data.titleEn,
+      title_fa: data.titleFa,
+      description_en: data.descriptionEn ?? null,
+      description_fa: data.descriptionFa ?? null,
+      youtube_url: data.youtubeUrl ?? null,
+      image_url: finalImageUrl,
+      published: data.published,
+      media_type: data.mediaType ?? 'youtube',
+      gallery_urls: data.galleryUrls ?? [],
+      order: 0,
     });
+
+    if (error) throw error;
 
     revalidatePath('/[locale]', 'layout');
     revalidatePath('/[locale]/admin', 'page');
-    return { success: true, project };
+    return { success: true };
   } catch (error) {
-    console.error("Failed to create project:", error);
-    return { success: false, error: "Failed to create project" };
+    console.error('Failed to create project:', error);
+    return { success: false, error: 'Failed to create project' };
   }
 }
 
 export async function updateProject(id: string, formData: FormData) {
   try {
+    const supabase = await createServerClient();
     const titleEn = formData.get('titleEn') as string;
     const titleFa = formData.get('titleFa') as string;
     const descriptionEn = formData.get('descriptionEn') as string;
     const descriptionFa = formData.get('descriptionFa') as string;
     const youtubeUrl = formData.get('youtubeUrl') as string;
     const imageUrl = formData.get('imageUrl') as string;
-    const mediaType = formData.get('mediaType') as string || 'youtube';
-    const galleryUrls = JSON.parse(formData.get('galleryUrls') as string || '[]');
+    const mediaType = (formData.get('mediaType') as string) || 'youtube';
+    const galleryUrls: string[] = JSON.parse((formData.get('galleryUrls') as string) || '[]');
 
     const finalImageUrl = processImageUrl(imageUrl, youtubeUrl);
     const slug = generateSlug(titleEn);
 
-    await prisma.project.update({
-      where: { id },
-      data: {
-        titleEn,
-        titleFa,
-        descriptionEn,
-        descriptionFa,
-        youtubeUrl,
-        slug,
-        imageUrl: finalImageUrl,
-        mediaType,
-        galleryUrls
-      },
-    });
+    const { error } = await supabase.from('Project').update({
+      title_en: titleEn,
+      title_fa: titleFa,
+      description_en: descriptionEn || null,
+      description_fa: descriptionFa || null,
+      youtube_url: youtubeUrl || null,
+      image_url: finalImageUrl,
+      slug,
+      media_type: mediaType,
+      gallery_urls: galleryUrls,
+    }).eq('id', id);
+
+    if (error) throw error;
 
     revalidatePath('/[locale]', 'layout');
     revalidatePath('/[locale]/admin', 'page');
     return { success: true };
   } catch (error) {
-    console.error("Failed to update project:", error);
-    return { success: false, error: "Failed to update project" };
+    console.error('Failed to update project:', error);
+    return { success: false, error: 'Failed to update project' };
   }
 }
 
 export async function deleteProject(id: string) {
   try {
-    // 1. Fetch project to get imageUrl for cleanup
-    const project = await prisma.project.findUnique({
-      where: { id },
-      select: { imageUrl: true }
-    });
+    const supabase = await createServerClient();
 
-    if (!project) {
-      return { success: false, error: "Project not found" };
+    const { data: project, error: fetchError } = await supabase
+      .from('Project')
+      .select('image_url, gallery_urls')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !project) {
+      return { success: false, error: 'Project not found' };
     }
 
-    // 2. Delete the image if it's hosted on Vercel Blob
-    if (project.imageUrl && project.imageUrl.includes('vercel-storage.com')) {
-      const { del } = await import('@vercel/blob');
-      try {
-        await del(project.imageUrl);
-      } catch (e) {
-        console.error("Failed to delete blob:", e);
+    // Collect all Supabase-hosted storage paths to delete
+    const pathsToDelete: string[] = [];
+
+    if (project.image_url && isSupabaseUrl(project.image_url)) {
+      const path = extractStoragePath(project.image_url, 'projects');
+      if (path) pathsToDelete.push(path);
+    }
+
+    const gallery: string[] = project.gallery_urls ?? [];
+    for (const url of gallery) {
+      if (url && isSupabaseUrl(url)) {
+        const path = extractStoragePath(url, 'projects');
+        if (path) pathsToDelete.push(path);
       }
     }
 
-    // 3. Delete from database
-    await prisma.project.delete({
-      where: { id },
-    });
+    if (pathsToDelete.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from('projects')
+        .remove(pathsToDelete);
+      if (storageError) console.error('Failed to delete project storage files:', storageError);
+    }
 
-    // 4. Revalidate cache
+    const { error: deleteError } = await supabase.from('Project').delete().eq('id', id);
+    if (deleteError) throw deleteError;
+
     revalidatePath('/[locale]', 'layout');
     revalidatePath('/[locale]/admin', 'page');
-    
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete project:", error);
-    return { success: false, error: "Failed to delete project" };
+    console.error('Failed to delete project:', error);
+    return { success: false, error: 'Failed to delete project' };
   }
 }

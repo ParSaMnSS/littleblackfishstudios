@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
-import Hero from "@/components/Hero/Hero";
-import ProjectGrid from "@/components/ProjectGrid/ProjectGrid";
-import { notFound } from "next/navigation";
+import { createServerClient } from '@/lib/supabase/server';
+import Hero from '@/components/Hero/Hero';
+import ProjectGrid from '@/components/ProjectGrid/ProjectGrid';
+import { notFound } from 'next/navigation';
+import { serializeProject, serializeHeroSlide } from '@/lib/serializers';
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -14,27 +15,28 @@ export default async function HomePage({ params }: HomePageProps) {
     notFound();
   }
 
-  // Fetch active hero slides ordered by 'order'
-  const slides = await prisma.heroSlide.findMany({
-    where: { active: true },
-    orderBy: { order: 'asc' },
-  });
+  const supabase = await createServerClient();
 
-  // Fetch published projects from Prisma
-  const projects = await prisma.project.findMany({
-    where: {
-      published: true,
-    },
-    orderBy: {
-      order: 'asc',
-    },
-  });
+  const { data: slideRows } = await supabase
+    .from('HeroSlide')
+    .select('*')
+    .eq('active', true)
+    .order('order', { ascending: true });
+
+  const { data: projectRows } = await supabase
+    .from('Project')
+    .select('*')
+    .eq('published', true)
+    .order('order', { ascending: true });
+
+  const slides = (slideRows ?? []).map(serializeHeroSlide);
+  const projects = (projectRows ?? []).map(serializeProject);
 
   return (
     <main className="min-h-screen bg-black">
       {/* Cinematic Hero Section */}
       <Hero slides={slides} locale={locale} />
-      
+
       {/* Content Section */}
       <div id="projects" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 scroll-mt-24">
         <header className="mb-16">
@@ -48,9 +50,9 @@ export default async function HomePage({ params }: HomePageProps) {
             {locale === 'fa' ? 'پروژه‌های اخیر' : 'Recent Projects'}
           </h2>
         </header>
-        
+
         <ProjectGrid projects={projects} locale={locale} />
-        
+
         {projects.length === 0 && (
           <div className="text-center py-20 border border-dashed border-zinc-800 rounded-2xl">
             <p className="text-zinc-500 font-light italic">

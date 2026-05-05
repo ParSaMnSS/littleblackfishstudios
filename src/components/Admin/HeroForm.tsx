@@ -65,7 +65,7 @@ export default function HeroForm({ locale, initialData, onClose }: HeroFormProps
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl} />
+          <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl} bucket="hero" />
           
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

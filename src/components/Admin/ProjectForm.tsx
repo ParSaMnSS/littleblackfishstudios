@@ -5,14 +5,13 @@ import ImageUpload from './ImageUpload';
 import { createProject, updateProject } from '@/actions/project';
 import { useRouter } from 'next/navigation';
 import { 
-  Loader2, 
-  X, 
-  Trash2, 
-  ChevronLeft, 
-  ChevronRight, 
-  Video, 
+  Loader2,
+  X,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Video,
   Image as ImageIcon,
-  Plus
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -112,7 +111,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
             <label className="block text-xs font-bold uppercase text-zinc-500 mb-2 ml-1">
               {isRtl ? 'تصویر بندانگشتی (اصلی)' : 'Main Thumbnail'}
             </label>
-            <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl} />
+            <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl} bucket="projects" />
             <p className="mt-1 text-xs text-zinc-500">
               {isRtl 
                 ? '(اختیاری. در صورت خالی بودن از تامنیل یوتیوب استفاده می‌شود)' 
@@ -211,9 +210,10 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
                   ))}
                   
                   <div className="relative aspect-video rounded-lg border-2 border-dashed border-zinc-800 hover:border-zinc-700 transition-colors bg-zinc-900/50">
-                    <ImageUpload 
+                    <ImageUpload
                       key={galleryUrls.length}
-                      onUploadComplete={addGalleryImage} 
+                      onUploadComplete={addGalleryImage}
+                      bucket="projects"
                     />
                   </div>
                 </div>

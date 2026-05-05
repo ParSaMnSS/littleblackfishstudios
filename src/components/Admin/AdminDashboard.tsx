@@ -8,8 +8,9 @@ import { updateOrder } from '@/actions/reorder';
 import { deleteHeroSlide, toggleHeroStatus } from '@/actions/hero';
 import { deleteProject } from '@/actions/project';
 import { toggleProjectStatus } from '@/actions/admin'; // Assuming it's in admin.ts
+import { signOut } from '@/actions/auth';
 import { useRouter } from 'next/navigation';
-import { Plus, LayoutGrid, Image as ImageIcon } from 'lucide-react';
+import { Plus, LayoutGrid, Image as ImageIcon, LogOut } from 'lucide-react';
 
 interface AdminDashboardProps {
   initialProjects: any[];
@@ -59,16 +60,27 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
           <p className="mt-2 text-zinc-500">{isRtl ? 'مدیریت محتوا و چیدمان استودیو' : 'Manage your studio content and layout'}</p>
         </div>
 
-        <button 
-          onClick={() => {
-            setEditingItem(null);
-            setShowAddForm(true);
-          }}
-          className="flex items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3 font-bold transition-all hover:bg-blue-500 hover:scale-105"
-        >
-          <Plus size={20} />
-          {isRtl ? 'افزودن محتوا' : 'Add Content'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              setEditingItem(null);
+              setShowAddForm(true);
+            }}
+            className="flex items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3 font-bold transition-all hover:bg-blue-500 hover:scale-105"
+          >
+            <Plus size={20} />
+            {isRtl ? 'افزودن محتوا' : 'Add Content'}
+          </button>
+          <form action={signOut.bind(null, locale)}>
+            <button
+              type="submit"
+              className="flex items-center gap-2 rounded-full border border-zinc-700 px-4 py-3 text-sm font-bold text-zinc-400 transition-all hover:border-zinc-500 hover:text-white"
+            >
+              <LogOut size={16} />
+              {isRtl ? 'خروج' : 'Sign Out'}
+            </button>
+          </form>
+        </div>
       </header>
 
       {/* Tabs */}

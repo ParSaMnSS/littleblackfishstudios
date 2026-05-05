@@ -1,47 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
+import { updateSession } from '@/lib/supabase/middleware';
+import { createServerClient } from '@supabase/ssr';
 
 const intlMiddleware = createMiddleware({
   locales: ['en', 'fa'],
   defaultLocale: 'en'
 });
 
-export default function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
+export default async function middleware(req: NextRequest) {
+  const supabaseResponse = await updateSession(req);
 
-  // 1. Check if the path is an admin route
-  // Matches /en/admin, /fa/admin, and any subpaths like /en/admin/settings
+  const pathname = req.nextUrl.pathname;
   const isAdminPath = /\/(en|fa)\/admin(\/.*)?$/.test(pathname);
 
   if (isAdminPath) {
-    const authHeader = req.headers.get('authorization');
+    const localeMatch = pathname.match(/^\/(en|fa)/);
+    const locale = localeMatch ? localeMatch[1] : 'en';
 
-    if (authHeader) {
-      const authValue = authHeader.split(' ')[1];
-      const [user, password] = Buffer.from(authValue, 'base64').toString().split(':');
+    const sessionResponse = supabaseResponse;
 
-      if (
-        user === process.env.ADMIN_USER &&
-        password === process.env.ADMIN_PASSWORD
-      ) {
-        return intlMiddleware(req);
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return req.cookies.getAll();
+          },
+          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              sessionResponse.cookies.set(name, value, options as Parameters<typeof sessionResponse.cookies.set>[2])
+            );
+          },
+        },
       }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      const loginUrl = req.nextUrl.clone();
+      loginUrl.pathname = `/${locale}/login`;
+      loginUrl.search = '';
+      return NextResponse.redirect(loginUrl);
     }
 
-    // If no auth header or credentials don't match, trigger Basic Auth prompt
-    return new NextResponse('Authentication required', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
-      },
-    });
+    if (user.app_metadata?.role !== 'admin') {
+      const loginUrl = req.nextUrl.clone();
+      loginUrl.pathname = `/${locale}/login`;
+      loginUrl.search = '?error=forbidden';
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
-  // 2. Default behavior for non-admin paths
-  return intlMiddleware(req);
+  const intlResponse = intlMiddleware(req);
+
+  // Merge cookies from supabaseResponse into intlResponse
+  supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+    intlResponse.cookies.set(name, value, options);
+  });
+
+  return intlResponse;
 }
 
 export const config = {
-  // Matcher for all paths except static files and internal Next.js/Vercel paths
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)']
 };
