@@ -17,8 +17,10 @@ export async function updateOrder(
 
     if (error) throw error;
 
-    revalidatePath('/[locale]', 'layout');
-    revalidatePath('/[locale]/admin', 'page');
+    revalidatePath('/en', 'page');
+    revalidatePath('/fa', 'page');
+    revalidatePath('/en/admin', 'page');
+    revalidatePath('/fa/admin', 'page');
     return { success: true };
   } catch (error) {
     console.error(`Failed to update ${model} order:`, error);
