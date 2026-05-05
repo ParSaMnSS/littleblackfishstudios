@@ -18,8 +18,6 @@ export default async function middleware(req: NextRequest) {
     const localeMatch = pathname.match(/^\/(en|fa)/);
     const locale = localeMatch ? localeMatch[1] : 'en';
 
-    const sessionResponse = supabaseResponse;
-
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,9 +26,9 @@ export default async function middleware(req: NextRequest) {
           getAll() {
             return req.cookies.getAll();
           },
-          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) =>
-              sessionResponse.cookies.set(name, value, options as Parameters<typeof sessionResponse.cookies.set>[2])
+              supabaseResponse.cookies.set(name, value, options)
             );
           },
         },
