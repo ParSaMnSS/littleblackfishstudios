@@ -56,9 +56,8 @@ export default async function middleware(req: NextRequest) {
 
   const intlResponse = intlMiddleware(req);
 
-  // Merge cookies from supabaseResponse into intlResponse
-  supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
-    intlResponse.cookies.set(name, value, options);
+  supabaseResponse.cookies.getAll().forEach(cookie => {
+    intlResponse.cookies.set(cookie.name, cookie.value);
   });
 
   return intlResponse;
