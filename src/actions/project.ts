@@ -55,7 +55,7 @@ export async function createProject(data: {
   try {
     const supabase = createServiceClient();
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
-    const slug = generateSlug(data.titleEn);
+    const slug = `${generateSlug(data.titleEn)}-${Date.now()}`;
 
     const { error } = await supabase.from('projects').insert({
       slug,

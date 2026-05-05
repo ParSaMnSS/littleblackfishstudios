@@ -18,7 +18,7 @@ export default async function ProjectPage({ params }: Props) {
 
   // 1. Fetch the single project; RLS filters out unpublished rows
   const { data: row } = await supabase
-    .from('Project')
+    .from('projects')
     .select('*')
     .eq('slug', slug)
     .eq('published', true)
@@ -30,7 +30,7 @@ export default async function ProjectPage({ params }: Props) {
 
   // 2. Fetch navigation list (minimal columns)
   const { data: navRows } = await supabase
-    .from('Project')
+    .from('projects')
     .select('id, slug, title_en, title_fa')
     .eq('published', true)
     .order('order', { ascending: true });

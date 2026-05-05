@@ -17,12 +17,12 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const supabase = createServiceClient();
 
   const { data: projectRows } = await supabase
-    .from('Project')
+    .from('projects')
     .select('*')
     .order('order', { ascending: true });
 
   const { data: slideRows } = await supabase
-    .from('HeroSlide')
+    .from('hero_slides')
     .select('*')
     .order('order', { ascending: true });
 

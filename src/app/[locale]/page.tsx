@@ -18,13 +18,13 @@ export default async function HomePage({ params }: HomePageProps) {
   const supabase = await createServerClient();
 
   const { data: slideRows } = await supabase
-    .from('HeroSlide')
+    .from('hero_slides')
     .select('*')
     .eq('active', true)
     .order('order', { ascending: true });
 
   const { data: projectRows } = await supabase
-    .from('Project')
+    .from('projects')
     .select('*')
     .eq('published', true)
     .order('order', { ascending: true });
