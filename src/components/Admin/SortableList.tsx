@@ -7,7 +7,7 @@ function getYouTubeThumbnail(url: string | null | undefined) {
   return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/default.jpg` : null;
 }
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
@@ -29,13 +29,20 @@ interface SortableListProps {
 }
 
 export default function SortableList({ items, onReorder, onEdit, onDelete, onToggle }: SortableListProps) {
+  const [localItems, setLocalItems] = useState(items);
+
+  useEffect(() => {
+    setLocalItems(items);
+  }, [items]);
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(items);
+    const newItems = Array.from(localItems);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
+    setLocalItems(newItems);
     onReorder(newItems);
   };
 
@@ -44,7 +51,7 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
       <Droppable droppableId="sortable-list">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-            {items.map((item, index) => (
+            {localItems.map((item, index) => (
               <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(provided, snapshot) => (
                   <div
