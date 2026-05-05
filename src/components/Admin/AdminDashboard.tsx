@@ -30,7 +30,11 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
       id: item.id,
       order: index,
     }));
-    await updateOrder(itemsWithOrder, type);
+    const result = await updateOrder(itemsWithOrder, type);
+    if (result.success) {
+      router.refresh();
+    }
+    return result;
   };
 
   const handleDeleteProject = async (project: any) => {
@@ -116,6 +120,7 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
               active: p.published
             }))}
             onReorder={(items) => handleReorder(items, 'project')}
+            isRtl={isRtl}
             onEdit={(item) => {
               const fullData = initialProjects.find(p => p.id === item.id);
               setEditingItem(fullData);
@@ -137,6 +142,7 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
               active: s.active
             }))}
             onReorder={(items) => handleReorder(items, 'hero')}
+            isRtl={isRtl}
             onEdit={(item) => {
               const fullData = initialHeroSlides.find(s => s.id === item.id);
               setEditingItem(fullData);

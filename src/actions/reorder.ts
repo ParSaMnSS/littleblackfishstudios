@@ -11,11 +11,17 @@ export async function updateOrder(
     const supabase = createServiceClient();
     const table = model === 'project' ? 'projects' : 'hero_slides';
 
-    const rows = items.map(({ id, order }) => ({ id, order }));
+    const results = await Promise.all(
+      items.map(({ id, order }) =>
+        supabase.from(table).update({ order }).eq('id', id)
+      )
+    );
 
-    const { error } = await supabase.from(table).upsert(rows, { onConflict: 'id' });
-
-    if (error) throw error;
+    const firstError = results.find((r) => r.error)?.error;
+    if (firstError) {
+      console.error(`Failed to update ${model} order:`, firstError);
+      return { success: false, error: firstError.message };
+    }
 
     revalidatePath('/en', 'page');
     revalidatePath('/fa', 'page');
