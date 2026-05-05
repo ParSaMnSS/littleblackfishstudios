@@ -91,10 +91,13 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 						{currentSlide.youtubeUrl ? (
 							<div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden">
 								<iframe
-									src={`https://www.youtube.com/embed/${getYouTubeId(currentSlide.youtubeUrl)}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&playlist=${getYouTubeId(currentSlide.youtubeUrl)}`}
-									className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
+									src={`https://www.youtube.com/embed/${getYouTubeId(currentSlide.youtubeUrl)}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&playlist=${getYouTubeId(currentSlide.youtubeUrl)}&vq=hd1080&modestbranding=1&disablekb=1&fs=0&cc_load_policy=0`}
+									className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover opacity-0 transition-opacity duration-700"
 									allow="autoplay; encrypted-media"
 									frameBorder="0"
+									onLoad={(e) => {
+										(e.currentTarget as HTMLIFrameElement).style.opacity = '1';
+									}}
 								/>
 							</div>
 						) : currentSlide.imageUrl &&

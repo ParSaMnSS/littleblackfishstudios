@@ -25,7 +25,9 @@ export default function GalleryCarousel({ galleryUrls, title, isRtl }: GalleryCa
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir === 'left' ? -el.clientWidth : el.clientWidth, behavior: 'smooth' });
+    const item = el.firstElementChild as HTMLElement | null;
+    const itemWidth = item ? item.offsetWidth + 16 : el.clientWidth;
+    el.scrollBy({ left: dir === 'left' ? -itemWidth : itemWidth, behavior: 'smooth' });
   };
 
   return (
