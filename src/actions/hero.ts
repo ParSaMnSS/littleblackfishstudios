@@ -27,7 +27,7 @@ export async function createHeroSlide(formData: FormData) {
 
     if (!imageUrl && !youtubeUrl) throw new Error('Image or YouTube URL is required');
 
-    const { error } = await supabase.from('HeroSlide').insert({
+    const { error } = await supabase.from('hero_slides').insert({
       title_en: titleEn,
       title_fa: titleFa,
       subtitle_en: subtitleEn,
@@ -54,7 +54,7 @@ export async function toggleHeroStatus(id: string, currentStatus: boolean) {
     const supabase = createServiceClient();
 
     const { error } = await supabase
-      .from('HeroSlide')
+      .from('hero_slides')
       .update({ active: !currentStatus })
       .eq('id', id);
 
@@ -72,7 +72,7 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
   try {
     const supabase = createServiceClient();
 
-    const { error: deleteError } = await supabase.from('HeroSlide').delete().eq('id', id);
+    const { error: deleteError } = await supabase.from('hero_slides').delete().eq('id', id);
     if (deleteError) throw deleteError;
 
     if (imageUrl && isSupabaseUrl(imageUrl)) {
@@ -103,7 +103,7 @@ export async function updateHeroSlide(id: string, formData: FormData) {
     const youtubeUrl = (formData.get('youtubeUrl') as string) || null;
 
     const { error } = await supabase
-      .from('HeroSlide')
+      .from('hero_slides')
       .update({
         title_en: titleEn,
         title_fa: titleFa,

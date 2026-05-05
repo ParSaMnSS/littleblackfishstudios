@@ -57,7 +57,7 @@ export async function createProject(data: {
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
     const slug = generateSlug(data.titleEn);
 
-    const { error } = await supabase.from('Project').insert({
+    const { error } = await supabase.from('projects').insert({
       slug,
       title_en: data.titleEn,
       title_fa: data.titleFa,
@@ -97,7 +97,7 @@ export async function updateProject(id: string, formData: FormData) {
     const finalImageUrl = processImageUrl(imageUrl, youtubeUrl);
     const slug = generateSlug(titleEn);
 
-    const { error } = await supabase.from('Project').update({
+    const { error } = await supabase.from('projects').update({
       title_en: titleEn,
       title_fa: titleFa,
       description_en: descriptionEn || null,
@@ -125,7 +125,7 @@ export async function deleteProject(id: string) {
     const supabase = createServiceClient();
 
     const { data: project, error: fetchError } = await supabase
-      .from('Project')
+      .from('projects')
       .select('image_url, gallery_urls')
       .eq('id', id)
       .single();
@@ -157,7 +157,7 @@ export async function deleteProject(id: string) {
       if (storageError) console.error('Failed to delete project storage files:', storageError);
     }
 
-    const { error: deleteError } = await supabase.from('Project').delete().eq('id', id);
+    const { error: deleteError } = await supabase.from('projects').delete().eq('id', id);
     if (deleteError) throw deleteError;
 
     revalidatePath('/[locale]', 'layout');

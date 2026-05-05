@@ -9,7 +9,7 @@ export async function updateOrder(
 ) {
   try {
     const supabase = createServiceClient();
-    const table = model === 'project' ? 'Project' : 'HeroSlide';
+    const table = model === 'project' ? 'projects' : 'hero_slides';
 
     const rows = items.map(({ id, order }) => ({ id, order }));
 

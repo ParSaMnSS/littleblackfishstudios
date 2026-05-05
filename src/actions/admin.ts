@@ -8,7 +8,7 @@ export async function toggleProjectStatus(id: string, currentStatus: boolean) {
     const supabase = createServiceClient();
 
     const { error } = await supabase
-      .from('Project')
+      .from('projects')
       .update({ published: !currentStatus })
       .eq('id', id);
 
