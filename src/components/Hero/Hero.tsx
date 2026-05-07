@@ -6,7 +6,7 @@ import type { HeroProps } from "./types";
 const HeroClient = dynamic(() => import("./HeroClient"), {
   ssr: false,
   loading: () => (
-    <div className="relative w-full aspect-video md:aspect-auto md:h-screen bg-black" />
+    <div className="relative w-full mt-24 md:mt-0 h-[70vh] md:h-screen bg-black" />
   ),
 });
 

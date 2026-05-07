@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe } from "lucide-react";
+import { Menu, X, Globe, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar({ locale }: { locale: string }) {
@@ -65,17 +65,43 @@ export default function Navbar({ locale }: { locale: string }) {
 		{ href: `/${locale}/contact`, label: isRtl ? "تماس" : "Contact" },
 	];
 
+	const menuVariants = {
+		hidden: { x: "100%", opacity: 0 },
+		visible: {
+			x: 0,
+			opacity: 1,
+			transition: { type: "spring" as const, stiffness: 300, damping: 30 },
+		},
+		exit: {
+			x: "100%",
+			opacity: 0,
+			transition: { duration: 0.25, ease: "easeIn" as const },
+		},
+	};
+
+	const itemVariants = {
+		hidden: { x: 40, opacity: 0 },
+		visible: (i: number) => ({
+			x: 0,
+			opacity: 1,
+			transition: { delay: i * 0.07 + 0.1, duration: 0.35, ease: "easeOut" as const },
+		}),
+	};
+
 	return (
 		<>
 			<header className="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-300">
 				{/* Background Layers */}
 				<div className="absolute inset-0 z-0 pointer-events-none">
-					{/* Layer 1: Gradient (Always visible) */}
-					<div className="absolute inset-0 bg-linear-to-b from-black/80 to-transparent" />
+					{/* Mobile: always solid black */}
+					<div className="absolute inset-0 bg-black md:hidden" />
 
-					{/* Layer 2: Solid Black (Always present, fades in) */}
+					{/* Desktop Layer 1: gradient (always visible) */}
+					<div className="absolute inset-0 bg-linear-to-b from-black/80 to-transparent hidden md:block" />
+
+					{/* Desktop Layer 2: solid black on scroll */}
 					<div
-						className={`absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity duration-500 ease-in-out ${
+						className={`absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity duration-500 ease-in-out hidden md:block ${
 							isScrolled ? "opacity-100" : "opacity-0"
 						}`}
 					/>
@@ -142,62 +168,126 @@ export default function Navbar({ locale }: { locale: string }) {
 				</div>
 			</header>
 
-			{/* 1. Mobile Menu Overlay */}
+			{/* Mobile Menu */}
 			<AnimatePresence>
 				{isOpen && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						transition={{ duration: 0.3 }}
-						className="fixed inset-0 z-9999 h-dvh w-screen bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center"
-					>
-						{/* 2. Close Button inside the overlay */}
-						<button
-							className="absolute top-6 right-6 p-4 text-white hover:opacity-70 transition-opacity"
+					<>
+						{/* Backdrop */}
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 0.2 }}
+							className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm md:hidden"
 							onClick={() => setIsOpen(false)}
-							aria-label="Close menu"
+						/>
+
+						{/* Slide-in panel */}
+						<motion.div
+							variants={menuVariants}
+							initial="hidden"
+							animate="visible"
+							exit="exit"
+							className={`fixed top-0 h-dvh w-full max-w-sm z-[9999] bg-zinc-950 flex flex-col md:hidden border-zinc-800 ${
+								isRtl ? "left-0 border-r" : "right-0 border-l"
+							}`}
 						>
-							<X size={32} />
-						</button>
-
-						<div className="flex flex-col items-center gap-10 text-center">
-							{navLinks.map((link) => (
+							{/* Top bar: logo + close */}
+							<div className={`flex items-center justify-between px-6 h-24 border-b border-zinc-800/60 ${isRtl ? "flex-row-reverse" : ""}`}>
 								<Link
-									key={link.href}
-									href={link.href}
-									onClick={
-										link.href.includes("#projects")
-											? (e) => {
-													handleScroll(e);
-													setIsOpen(false);
-												}
-											: () => setIsOpen(false)
-									}
-									className={`font-black uppercase text-white transition-transform active:scale-95 ${
-										isRtl
-											? "text-5xl tracking-normal"
-											: "text-4xl tracking-[0.2em]"
-									}`}
+									href={`/${locale}`}
+									onClick={() => setIsOpen(false)}
+									className="flex items-center gap-3"
 								>
-									{link.label}
+									<Image
+										src="/logo-icon-white.png"
+										width={36}
+										height={36}
+										alt="Logo"
+										className="w-8 h-auto"
+									/>
+									<span className="font-lalezar text-lg text-white">
+										{isRtl ? "ماهی سیاه" : "Little Black Fish"}
+									</span>
 								</Link>
-							))}
+								<motion.button
+									onClick={() => setIsOpen(false)}
+									whileTap={{ scale: 0.9 }}
+									className="p-2 text-white/60 hover:text-white transition-colors"
+									aria-label="Close menu"
+								>
+									<X size={24} />
+								</motion.button>
+							</div>
 
-							<button
-								onClick={() => {
-									toggleLanguage();
-									setIsOpen(false);
-								}}
-								className="mt-6 flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-8 py-5 text-sm font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all"
+							{/* Nav links */}
+							<nav className="flex flex-col px-6 pt-6 gap-1 flex-1">
+								{navLinks.map((link, i) => (
+									<motion.div
+										key={link.href}
+										custom={i}
+										variants={itemVariants}
+										initial="hidden"
+										animate="visible"
+									>
+										<Link
+											href={link.href}
+											onClick={
+												link.href.includes("#projects")
+													? (e) => {
+															handleScroll(e);
+															setIsOpen(false);
+														}
+													: () => setIsOpen(false)
+											}
+											className={`group flex items-center gap-4 py-5 border-b border-zinc-800/40 ${
+												isRtl ? "flex-row-reverse text-right" : ""
+											}`}
+										>
+											<span className="text-blue-500 text-xs font-black tracking-widest w-5 text-center shrink-0">
+												{String(i + 1).padStart(2, "0")}
+											</span>
+											<span
+												className={`font-black uppercase text-white group-hover:text-blue-400 transition-colors flex-1 ${
+													isRtl
+														? "text-2xl tracking-normal"
+														: "text-xl tracking-[0.15em]"
+												}`}
+											>
+												{link.label}
+											</span>
+											<ChevronRight
+												size={16}
+												className={`shrink-0 text-zinc-600 group-hover:text-blue-500 transition-all ${
+													isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"
+												}`}
+											/>
+										</Link>
+									</motion.div>
+								))}
+							</nav>
+
+							{/* Bottom: language toggle */}
+							<motion.div
+								custom={navLinks.length}
+								variants={itemVariants}
+								initial="hidden"
+								animate="visible"
+								className="px-6 pb-8 pt-4 border-t border-zinc-800/60"
 							>
-								<Globe size={20} />
-								{locale === "en"
-									? "Persian (FA)"
-									: "English (EN)"}
-							</button>
-						</div>
-					</motion.div>
+								<button
+									onClick={() => {
+										toggleLanguage();
+										setIsOpen(false);
+									}}
+									className="w-full flex items-center justify-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-4 text-sm font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all"
+								>
+									<Globe size={16} />
+									{locale === "en" ? "Persian (FA)" : "English (EN)"}
+								</button>
+							</motion.div>
+						</motion.div>
+					</>
 				)}
 			</AnimatePresence>
 		</>
