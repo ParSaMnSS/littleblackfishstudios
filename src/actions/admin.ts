@@ -1,9 +1,10 @@
 'use server';
 
-import { createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient, requireAdminUser } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function toggleProjectStatus(id: string, currentStatus: boolean) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
 

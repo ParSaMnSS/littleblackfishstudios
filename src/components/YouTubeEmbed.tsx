@@ -1,13 +1,7 @@
-// src/components/YouTubeEmbed.tsx
-export function YouTubeEmbed({ url }: { url: string }) {
-  // Helper to extract video ID from various YouTube URL formats
-  const getVideoId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
+import { getYouTubeId } from '@/lib/youtube';
 
-  const videoId = getVideoId(url);
+export function YouTubeEmbed({ url }: { url: string }) {
+  const videoId = getYouTubeId(url);
 
   if (!videoId) return null;
 

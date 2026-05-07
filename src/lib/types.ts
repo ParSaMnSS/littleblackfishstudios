@@ -28,3 +28,36 @@ export interface HeroSlide {
   created_at: string;
   updated_at: string;
 }
+
+// Serialized (camelCase) shapes returned by serializers — used by components and client code
+
+export interface SerializedProject {
+  id: string;
+  slug: string;
+  youtubeUrl: string | null;
+  imageUrl: string | null;
+  mediaType: string;
+  galleryUrls: string[];
+  published: boolean;
+  titleEn: string;
+  titleFa: string;
+  descriptionEn: string | null;
+  descriptionFa: string | null;
+  order: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SerializedHeroSlide {
+  id: string;
+  titleEn: string | null;
+  titleFa: string | null;
+  subtitleEn: string | null;
+  subtitleFa: string | null;
+  imageUrl: string | null;
+  youtubeUrl: string | null;
+  order: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

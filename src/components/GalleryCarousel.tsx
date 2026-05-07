@@ -39,7 +39,7 @@ export default function GalleryCarousel({ galleryUrls, title, isRtl }: GalleryCa
       >
         {galleryUrls.map((url: string, index: number) => (
           <div
-            key={url + index}
+            key={url}
             className="relative min-w-[85%] md:min-w-[75%] aspect-video snap-center rounded-2xl overflow-hidden bg-zinc-900 shadow-xl border border-white/5 shrink-0"
           >
             <Image

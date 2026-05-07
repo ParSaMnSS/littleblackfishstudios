@@ -47,7 +47,7 @@ export default async function middleware(req: NextRequest) {
     if (user.app_metadata?.role !== 'admin') {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = `/${locale}/login`;
-      loginUrl.search = '?error=forbidden';
+      loginUrl.search = '';
       return NextResponse.redirect(loginUrl);
     }
   }

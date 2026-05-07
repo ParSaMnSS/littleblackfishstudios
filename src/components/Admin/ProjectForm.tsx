@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import ImageUpload from './ImageUpload';
 import { createProject, updateProject } from '@/actions/project';
 import { useRouter } from 'next/navigation';
-import { 
+import {
   Loader2,
   X,
   Trash2,
@@ -14,10 +14,11 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import Image from 'next/image';
+import type { SerializedProject } from '@/lib/types';
 
 interface ProjectFormProps {
   locale: string;
-  initialData?: any;
+  initialData?: SerializedProject;
   onClose?: () => void;
 }
 
@@ -26,7 +27,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
-  const [mediaType, setMediaType] = useState<'youtube' | 'gallery'>(initialData?.mediaType || 'youtube');
+  const [mediaType, setMediaType] = useState<'youtube' | 'gallery'>((initialData?.mediaType as 'youtube' | 'gallery') || 'youtube');
   const [galleryUrls, setGalleryUrls] = useState<string[]>(initialData?.galleryUrls || []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -111,7 +112,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
             <label className="block text-xs font-bold uppercase text-zinc-500 mb-2 ml-1">
               {isRtl ? 'تصویر بندانگشتی (اصلی)' : 'Main Thumbnail'}
             </label>
-            <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl} bucket="projects" />
+            <ImageUpload onUploadComplete={setImageUrl} defaultValue={initialData?.imageUrl ?? undefined} bucket="projects" />
             <p className="mt-1 text-xs text-zinc-500">
               {isRtl 
                 ? '(اختیاری. در صورت خالی بودن از تامنیل یوتیوب استفاده می‌شود)' 
@@ -153,7 +154,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
           </div>
 
           {/* Conditional Media Input */}
-          <div className="min-h-[200px] p-4 rounded-xl border border-zinc-800 bg-zinc-900/30">
+          <div className="min-h-50 p-4 rounded-xl border border-zinc-800 bg-zinc-900/30">
             {mediaType === 'youtube' ? (
               <div className="space-y-4">
                 <label className="block text-xs font-bold uppercase text-zinc-500 mb-1 ml-1">
@@ -161,7 +162,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
                 </label>
                 <input
                   name="youtubeUrl"
-                  defaultValue={initialData?.youtubeUrl}
+                  defaultValue={initialData?.youtubeUrl ?? undefined}
                   placeholder="https://youtube.com/watch?v=..."
                   className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 />
@@ -174,7 +175,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
                 
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   {galleryUrls.map((url, index) => (
-                    <div key={url + index} className="group relative aspect-video rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950">
+                    <div key={url} className="group relative aspect-video rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950">
                       <Image src={url} alt={`Gallery ${index}`} fill className="object-cover" />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                         <div className="flex items-center gap-1">
@@ -250,7 +251,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
               <label className="block text-xs font-bold uppercase text-zinc-500 mb-1 ml-1">English Description</label>
               <textarea
                 name="descriptionEn"
-                defaultValue={initialData?.descriptionEn}
+                defaultValue={initialData?.descriptionEn ?? undefined}
                 placeholder="Project details..."
                 rows={4}
                 className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -260,7 +261,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
               <label className="block text-xs font-bold uppercase text-zinc-500 mb-1 ml-1">Persian Description</label>
               <textarea
                 name="descriptionFa"
-                defaultValue={initialData?.descriptionFa}
+                defaultValue={initialData?.descriptionFa ?? undefined}
                 placeholder="جزئیات پروژه..."
                 dir="rtl"
                 rows={4}

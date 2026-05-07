@@ -25,6 +25,27 @@ export const metadata: Metadata = {
 		icon: "/logo-icon-white.png",
 		apple: "/logo-icon-white.png",
 	},
+	openGraph: {
+		title: "Little Black Fish Studios | Creative Agency",
+		description: "A creative digital agency swimming against the current. Web design, development, and branding.",
+		url: "https://littleblackfishstudios.com",
+		siteName: "Little Black Fish Studios",
+		images: [
+			{
+				url: "/og-image.png",
+				width: 1200,
+				height: 630,
+			},
+		],
+		locale: "en_US",
+		type: "website",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Little Black Fish Studios | Creative Agency",
+		description: "A creative digital agency swimming against the current. Web design, development, and branding.",
+		images: ["/og-image.png"],
+	},
 };
 
 interface RootLayoutProps {

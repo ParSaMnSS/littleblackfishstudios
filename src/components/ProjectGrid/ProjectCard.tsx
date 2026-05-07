@@ -3,17 +3,11 @@ import { ProjectCardProps } from './types';
 import { twMerge } from 'tailwind-merge';
 import Image from 'next/image';
 import Link from 'next/link';
-
-function getYouTubeThumbnail(url: string | null | undefined) {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg` : null;
-}
+import { getYouTubeMaxResThumbnail } from '@/lib/youtube';
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, locale }) => {
   const isRtl = locale === 'fa';
-  const youtubeThumbnailUrl = getYouTubeThumbnail(project.youtubeUrl);
+  const youtubeThumbnailUrl = getYouTubeMaxResThumbnail(project.youtubeUrl);
   const displayImageUrl = youtubeThumbnailUrl || project.imageUrl;
 
   return (
@@ -30,6 +24,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, locale }) => {
             src={displayImageUrl}
             alt={isRtl ? project.titleFa : project.titleEn}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform group-hover:scale-105"
           />
         ) : (

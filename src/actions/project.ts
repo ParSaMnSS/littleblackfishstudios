@@ -1,7 +1,8 @@
 'use server';
 
-import { createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient, requireAdminUser } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getYouTubeId } from '@/lib/youtube';
 
 function generateSlug(title: string) {
   return title
@@ -9,12 +10,6 @@ function generateSlug(title: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
-}
-
-function getYouTubeId(url: string) {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
 }
 
 function processImageUrl(imageUrl: string | null, youtubeUrl: string | null) {
@@ -52,6 +47,7 @@ export async function createProject(data: {
   mediaType?: string;
   galleryUrls?: string[];
 }) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
     const finalImageUrl = processImageUrl(data.imageUrl || null, data.youtubeUrl || null);
@@ -83,6 +79,7 @@ export async function createProject(data: {
 }
 
 export async function updateProject(id: string, formData: FormData) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
     const titleEn = formData.get('titleEn') as string;
@@ -121,6 +118,7 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function deleteProject(id: string) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
 

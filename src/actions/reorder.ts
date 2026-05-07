@@ -1,12 +1,13 @@
 'use server';
 
-import { createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient, requireAdminUser } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function updateOrder(
   items: { id: string; order: number }[],
   model: 'project' | 'hero'
 ) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
     const table = model === 'project' ? 'projects' : 'hero_slides';
@@ -23,10 +24,8 @@ export async function updateOrder(
       return { success: false, error: firstError.message };
     }
 
-    revalidatePath('/en', 'page');
-    revalidatePath('/fa', 'page');
-    revalidatePath('/en/admin', 'page');
-    revalidatePath('/fa/admin', 'page');
+    revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
     return { success: true };
   } catch (error) {
     console.error(`Failed to update ${model} order:`, error);

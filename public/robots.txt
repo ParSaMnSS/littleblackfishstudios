@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /en/admin
+Disallow: /fa/admin
+Disallow: /en/login
+Disallow: /fa/login
+
+Sitemap: https://littleblackfishstudios.com/sitemap.xml

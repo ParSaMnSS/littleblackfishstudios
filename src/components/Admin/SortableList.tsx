@@ -1,13 +1,7 @@
 'use client';
 
-function getYouTubeThumbnail(url: string | null | undefined) {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/mqdefault.jpg` : null;
-}
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { getYouTubeThumbnail } from '@/lib/youtube';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { GripVertical, Pencil, Trash2, Eye, EyeOff, ArrowUp, ArrowDown, Save, X, Check, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -20,11 +14,13 @@ interface SortableItem {
   active?: boolean;
 }
 
+export type { SortableItem };
+
 interface SortableListProps {
   items: SortableItem[];
   onReorder: (items: SortableItem[]) => Promise<{ success: boolean; error?: string } | void> | void;
-  onEdit: (item: any) => void;
-  onDelete: (item: any) => void;
+  onEdit: (item: SortableItem) => void;
+  onDelete: (item: SortableItem) => void;
   onToggle?: (id: string, currentStatus: boolean) => void;
   isRtl?: boolean;
 }
@@ -36,12 +32,14 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const itemIds = useMemo(() => items.map(i => i.id).join(','), [items]);
+
   useEffect(() => {
     if (!isDirty) {
       setLocalItems(items);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.map(i => i.id).join(','), isDirty]);
+  }, [itemIds, isDirty]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -207,20 +205,26 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
                     <div className="flex items-center gap-1">
                       {onToggle && (
                         <button
+                          type="button"
                           onClick={() => onToggle(item.id, item.active ?? false)}
+                          aria-label={item.active ? 'Hide item' : 'Show item'}
                           className={`p-2 transition-colors ${item.active ? 'text-blue-500 hover:bg-blue-500/10' : 'text-zinc-500 hover:bg-zinc-500/10'}`}
                         >
                           {item.active ? <Eye size={18} /> : <EyeOff size={18} />}
                         </button>
                       )}
                       <button
+                        type="button"
                         onClick={() => onEdit(item)}
+                        aria-label="Edit item"
                         className="p-2 text-zinc-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
                       >
                         <Pencil size={18} />
                       </button>
                       <button
+                        type="button"
                         onClick={() => onDelete(item)}
+                        aria-label="Delete item"
                         className="p-2 text-red-500/50 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors"
                       >
                         <Trash2 size={18} />

@@ -1,57 +1,49 @@
 'use client';
 
 import React, { useState } from 'react';
-import SortableList from './SortableList';
+import SortableList, { type SortableItem } from './SortableList';
 import ProjectForm from './ProjectForm';
 import HeroForm from './HeroForm';
 import { updateOrder } from '@/actions/reorder';
 import { deleteHeroSlide, toggleHeroStatus } from '@/actions/hero';
 import { deleteProject } from '@/actions/project';
-import { toggleProjectStatus } from '@/actions/admin'; // Assuming it's in admin.ts
+import { toggleProjectStatus } from '@/actions/admin';
 import { signOut } from '@/actions/auth';
-import { useRouter } from 'next/navigation';
 import { Plus, LayoutGrid, Image as ImageIcon, LogOut } from 'lucide-react';
+import type { SerializedProject, SerializedHeroSlide } from '@/lib/types';
 
 interface AdminDashboardProps {
-  initialProjects: any[];
-  initialHeroSlides: any[];
+  initialProjects: SerializedProject[];
+  initialHeroSlides: SerializedHeroSlide[];
   locale: string;
 }
 
 export default function AdminDashboard({ initialProjects, initialHeroSlides, locale }: AdminDashboardProps) {
   const isRtl = locale === 'fa';
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'projects' | 'hero'>('projects');
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<SerializedProject | SerializedHeroSlide | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const handleReorder = async (newItems: any[], type: 'project' | 'hero') => {
+  const handleReorder = async (newItems: SortableItem[], type: 'project' | 'hero') => {
     const itemsWithOrder = newItems.map((item, index) => ({
       id: item.id,
       order: index,
     }));
-    const result = await updateOrder(itemsWithOrder, type);
-    if (result.success) {
-      router.refresh();
-    }
-    return result;
+    return await updateOrder(itemsWithOrder, type);
   };
 
-  const handleDeleteProject = async (project: any) => {
+  const handleDeleteProject = async (item: SortableItem) => {
     if (confirm(isRtl ? 'آیا از حذف این پروژه مطمئن هستید؟' : 'Are you sure you want to delete this project?')) {
-      const result = await deleteProject(project.id);
-      if (result.success) {
-        router.refresh();
-      } else {
+      const result = await deleteProject(item.id);
+      if (!result.success) {
         alert(isRtl ? 'خطا در حذف پروژه' : 'Failed to delete project');
       }
     }
   };
 
-  const handleDeleteHero = async (slide: any) => {
+  const handleDeleteHero = async (item: SortableItem) => {
     if (confirm(isRtl ? 'حذف اسلاید؟' : 'Delete slide?')) {
-      await deleteHeroSlide(slide.id, slide.imageUrl);
-      router.refresh();
+      await deleteHeroSlide(item.id, item.image ?? '');
     }
   };
 
@@ -109,9 +101,9 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
       </div>
 
       {/* Main Content Area */}
-      <div className="min-h-[400px]">
+      <div className="min-h-100">
         {activeTab === 'projects' ? (
-          <SortableList 
+          <SortableList
             items={initialProjects.map(p => ({
               id: p.id,
               title: isRtl ? p.titleFa : p.titleEn,
@@ -122,21 +114,18 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
             onReorder={(items) => handleReorder(items, 'project')}
             isRtl={isRtl}
             onEdit={(item) => {
-              const fullData = initialProjects.find(p => p.id === item.id);
+              const fullData = initialProjects.find(p => p.id === item.id) ?? null;
               setEditingItem(fullData);
               setShowAddForm(true);
             }}
             onDelete={handleDeleteProject}
-            onToggle={async (id, status) => {
-              await toggleProjectStatus(id, status);
-              router.refresh();
-            }}
+            onToggle={(id, status) => { toggleProjectStatus(id, status); }}
           />
         ) : (
-          <SortableList 
+          <SortableList
             items={initialHeroSlides.map(s => ({
               id: s.id,
-              title: isRtl ? s.titleFa : s.titleEn,
+              title: isRtl ? (s.titleFa ?? '') : (s.titleEn ?? ''),
               image: s.imageUrl,
               youtubeUrl: s.youtubeUrl,
               active: s.active
@@ -144,40 +133,37 @@ export default function AdminDashboard({ initialProjects, initialHeroSlides, loc
             onReorder={(items) => handleReorder(items, 'hero')}
             isRtl={isRtl}
             onEdit={(item) => {
-              const fullData = initialHeroSlides.find(s => s.id === item.id);
+              const fullData = initialHeroSlides.find(s => s.id === item.id) ?? null;
               setEditingItem(fullData);
               setShowAddForm(true);
             }}
             onDelete={handleDeleteHero}
-            onToggle={async (id, status) => {
-              await toggleHeroStatus(id, status);
-              router.refresh();
-            }}
+            onToggle={(id, status) => { toggleHeroStatus(id, status); }}
           />
         )}
       </div>
 
       {/* Overlay Form Modal */}
       {(showAddForm || editingItem) && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             {activeTab === 'projects' ? (
-              <ProjectForm 
-                locale={locale} 
-                initialData={editingItem} 
+              <ProjectForm
+                locale={locale}
+                initialData={editingItem as SerializedProject | undefined}
                 onClose={() => {
                   setShowAddForm(false);
                   setEditingItem(null);
-                }} 
+                }}
               />
             ) : (
-              <HeroForm 
-                locale={locale} 
-                initialData={editingItem} 
+              <HeroForm
+                locale={locale}
+                initialData={editingItem as SerializedHeroSlide | undefined}
                 onClose={() => {
                   setShowAddForm(false);
                   setEditingItem(null);
-                }} 
+                }}
               />
             )}
           </div>

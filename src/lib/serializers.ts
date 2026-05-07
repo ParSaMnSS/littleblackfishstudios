@@ -1,35 +1,35 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Project, HeroSlide, SerializedProject, SerializedHeroSlide } from './types';
 
-export function serializeProject(row: Record<string, any>) {
+export function serializeProject(row: Project): SerializedProject {
   return {
-    id: row.id as string,
-    slug: row.slug as string,
-    youtubeUrl: (row.youtube_url ?? null) as string | null,
-    imageUrl: (row.image_url ?? null) as string | null,
-    mediaType: (row.media_type ?? 'youtube') as string,
-    galleryUrls: (row.gallery_urls ?? []) as string[],
-    published: row.published as boolean,
-    titleEn: row.title_en as string,
-    titleFa: row.title_fa as string,
-    descriptionEn: (row.description_en ?? null) as string | null,
-    descriptionFa: (row.description_fa ?? null) as string | null,
-    order: row.order as number,
+    id: row.id,
+    slug: row.slug,
+    youtubeUrl: row.youtube_url ?? null,
+    imageUrl: row.image_url ?? null,
+    mediaType: row.media_type ?? 'youtube',
+    galleryUrls: row.gallery_urls ?? [],
+    published: row.published,
+    titleEn: row.title_en,
+    titleFa: row.title_fa,
+    descriptionEn: row.description_en ?? null,
+    descriptionFa: row.description_fa ?? null,
+    order: row.order,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
 }
 
-export function serializeHeroSlide(row: Record<string, any>) {
+export function serializeHeroSlide(row: HeroSlide): SerializedHeroSlide {
   return {
-    id: row.id as string,
-    titleEn: (row.title_en ?? null) as string | null,
-    titleFa: (row.title_fa ?? null) as string | null,
-    subtitleEn: (row.subtitle_en ?? null) as string | null,
-    subtitleFa: (row.subtitle_fa ?? null) as string | null,
-    imageUrl: (row.image_url ?? null) as string | null,
-    youtubeUrl: (row.youtube_url ?? null) as string | null,
-    order: row.order as number,
-    active: row.active as boolean,
+    id: row.id,
+    titleEn: row.title_en ?? null,
+    titleFa: row.title_fa ?? null,
+    subtitleEn: row.subtitle_en ?? null,
+    subtitleFa: row.subtitle_fa ?? null,
+    imageUrl: row.image_url ?? null,
+    youtubeUrl: row.youtube_url ?? null,
+    order: row.order,
+    active: row.active,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };

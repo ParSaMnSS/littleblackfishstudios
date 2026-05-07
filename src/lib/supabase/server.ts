@@ -34,3 +34,11 @@ export function createServiceClient() {
     { auth: { persistSession: false } }
   );
 }
+
+export async function requireAdminUser(): Promise<void> {
+  const supabase = await createServerClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user || user.app_metadata?.role !== 'admin') {
+    throw new Error('Unauthorized');
+  }
+}

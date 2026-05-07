@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getYouTubeId } from "@/lib/youtube";
 
 interface HeroSlide {
 	id: string;
@@ -24,6 +25,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	const [current, setCurrent] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
 	const isRtl = locale === "fa";
+	const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const handleNext = useCallback(() => {
 		setCurrent((prev) => (prev + 1) % slides.length);
@@ -44,20 +46,16 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 		return () => clearInterval(timer);
 	}, [slides.length, isPaused, handleNext]);
 
-	// Pause timer for 10 seconds on interaction
-	const triggerInteraction = () => {
+	// Pause auto-play for 10 seconds on interaction; clears any pending resume timer
+	const triggerInteraction = useCallback(() => {
 		setIsPaused(true);
-		const resumeTimer = setTimeout(() => {
+		if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+		resumeTimerRef.current = setTimeout(() => {
 			setIsPaused(false);
 		}, 10000);
-		return () => clearTimeout(resumeTimer);
-	};
+	}, []);
 
 	const isVideo = (url: string) => /\.(mp4|webm|ogg|mov)$/i.test(url);
-	const getYouTubeId = (url: string) =>
-		url.match(
-			/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{11})/,
-		)?.[1];
 
 	if (!slides || slides.length === 0) return null;
 
@@ -108,7 +106,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 								muted
 								loop
 								playsInline
-								preload="auto"
+								preload="metadata"
 							/>
 						) : currentSlide.imageUrl ? (
 							<Image
@@ -163,6 +161,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 			{slides.length > 1 && (
 				<>
 					<button
+						type="button"
 						onClick={() => {
 							triggerInteraction();
 							handlePrev();
@@ -173,6 +172,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 						<ChevronLeft className="h-6 w-6 md:h-12 md:w-12" />
 					</button>
 					<button
+						type="button"
 						onClick={() => {
 							triggerInteraction();
 							handleNext();
@@ -188,13 +188,15 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 			{/* Slide Indicators */}
 			{slides.length > 1 && (
 				<div className="absolute bottom-8 md:bottom-12 left-1/2 flex -translate-x-1/2 gap-2 md:gap-4 z-40">
-					{slides.map((_, index) => (
+					{slides.map((slide, index) => (
 						<button
-							key={index}
+							type="button"
+							key={slide.id}
 							onClick={() => {
 								triggerInteraction();
 								setCurrent(index);
 							}}
+							aria-label={`Go to slide ${index + 1}`}
 							className={`h-1 rounded-full transition-all duration-700 shadow-lg ${
 								current === index
 									? "w-16 bg-white"

@@ -1,6 +1,6 @@
 'use server';
 
-import { createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient, requireAdminUser } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 function extractStoragePath(url: string, bucket: string): string | null {
@@ -15,6 +15,7 @@ function isSupabaseUrl(url: string): boolean {
 }
 
 export async function createHeroSlide(formData: FormData) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
     const titleEn = (formData.get('titleEn') as string) || null;
@@ -50,6 +51,7 @@ export async function createHeroSlide(formData: FormData) {
 }
 
 export async function toggleHeroStatus(id: string, currentStatus: boolean) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
 
@@ -69,6 +71,7 @@ export async function toggleHeroStatus(id: string, currentStatus: boolean) {
 }
 
 export async function deleteHeroSlide(id: string, imageUrl: string) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
 
@@ -92,6 +95,7 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
 }
 
 export async function updateHeroSlide(id: string, formData: FormData) {
+  await requireAdminUser();
   try {
     const supabase = createServiceClient();
     const titleEn = (formData.get('titleEn') as string) || null;

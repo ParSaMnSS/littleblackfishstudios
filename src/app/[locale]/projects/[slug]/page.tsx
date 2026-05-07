@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { createServerClient } from '@/lib/supabase/server';
 import { YouTubeEmbed } from '@/components/YouTubeEmbed';
 import GalleryCarousel from '@/components/GalleryCarousel';
@@ -11,6 +12,35 @@ interface Props {
   params: Promise<{ slug: string; locale: string }>;
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug, locale } = await params;
+  const isRtl = locale === 'fa';
+  const supabase = await createServerClient();
+
+  const { data: row } = await supabase
+    .from('projects')
+    .select('title_en, title_fa, description_en, description_fa, image_url')
+    .eq('slug', slug)
+    .eq('published', true)
+    .single();
+
+  if (!row) return {};
+
+  const title = isRtl ? row.title_fa : row.title_en;
+  const description = isRtl ? row.description_fa : row.description_en;
+
+  return {
+    title: `${title} | Little Black Fish Studios`,
+    description: description ?? undefined,
+    openGraph: {
+      title: title ?? undefined,
+      description: description ?? undefined,
+      images: row.image_url ? [{ url: row.image_url }] : [],
+      type: 'article',
+    },
+  };
+}
+
 export default async function ProjectPage({ params }: Props) {
   const { slug, locale } = await params;
   const isRtl = locale === 'fa';
@@ -18,12 +48,17 @@ export default async function ProjectPage({ params }: Props) {
   const supabase = await createServerClient();
 
   // 1. Fetch the single project; RLS filters out unpublished rows
-  const { data: row } = await supabase
+  const { data: row, error } = await supabase
     .from('projects')
     .select('*')
     .eq('slug', slug)
     .eq('published', true)
     .single();
+
+  // PGRST116 = "no rows returned" — handled by notFound() below
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching project:', error);
+  }
 
   if (!row) notFound();
 
