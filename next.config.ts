@@ -35,7 +35,23 @@ const nextConfig: NextConfig = {
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
       })),
       {
-        source: '/:path((?!admin|api|_next).*)',
+        source: '/',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)/about',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)/contact',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)/projects/:slug',
         headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
       },
     ];
