@@ -6,8 +6,6 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 const HTML_EDGE = 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400';
 
-const immutableExts = ['woff', 'woff2', 'ttf', 'otf', 'png', 'jpg', 'jpeg', 'webp', 'avif', 'svg', 'ico'];
-
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -30,12 +28,36 @@ const nextConfig: NextConfig = {
         source: '/_next/image/:path*',
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
       },
-      ...immutableExts.map((ext) => ({
-        source: `/:path*.${ext}`,
-        headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
-      })),
       {
-        source: '/:path((?!admin|api|_next).*)',
+        source: '/favicon.ico',
+        headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
+      },
+      {
+        source: '/logo-icon-white.png',
+        headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
+      },
+      {
+        source: '/og-image.png',
+        headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
+      },
+      {
+        source: '/',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)/about',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)/contact',
+        headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
+      },
+      {
+        source: '/:locale(en|fa)/projects/:slug',
         headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
       },
     ];
