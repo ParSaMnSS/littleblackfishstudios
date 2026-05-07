@@ -4,16 +4,25 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Globe } from "lucide-react";
+import {
+	motion,
+	AnimatePresence,
+	useScroll,
+	useTransform,
+	type Variants,
+} from "framer-motion";
 
 export default function Navbar({ locale }: { locale: string }) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [isScrolled, setIsScrolled] = useState(false);
 	const pathname = usePathname();
 	const isRtl = locale === "fa";
 
-	// 3. Body scroll lock
+	const { scrollY } = useScroll();
+	const headerHeight = useTransform(scrollY, [0, 120], [96, 72]);
+	const logoSize = useTransform(scrollY, [0, 120], [48, 36]);
+	const blurOpacity = useTransform(scrollY, [0, 80], [0, 1]);
+
 	useEffect(() => {
 		if (isOpen) {
 			document.body.style.overflow = "hidden";
@@ -24,14 +33,6 @@ export default function Navbar({ locale }: { locale: string }) {
 			document.body.style.overflow = "unset";
 		};
 	}, [isOpen]);
-
-	useEffect(() => {
-		const handleScroll = () => {
-			setIsScrolled(window.scrollY > 50);
-		};
-		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, []);
 
 	const toggleLanguage = () => {
 		const segments = pathname.split("/");
@@ -65,69 +66,88 @@ export default function Navbar({ locale }: { locale: string }) {
 		{ href: `/${locale}/contact`, label: isRtl ? "تماس" : "Contact" },
 	];
 
-	const menuVariants = {
-		hidden: { x: "100%", opacity: 0 },
+	const panelVariants: Variants = {
+		hidden: { x: "100%" },
 		visible: {
 			x: 0,
-			opacity: 1,
-			transition: { type: "spring" as const, stiffness: 300, damping: 30 },
+			transition: {
+				type: "spring",
+				stiffness: 260,
+				damping: 28,
+				when: "beforeChildren",
+				staggerChildren: 0.07,
+				delayChildren: 0.1,
+			},
 		},
 		exit: {
 			x: "100%",
-			opacity: 0,
-			transition: { duration: 0.25, ease: "easeIn" as const },
+			transition: { duration: 0.3, ease: "easeIn" },
 		},
 	};
 
-	const itemVariants = {
-		hidden: { x: 40, opacity: 0 },
-		visible: (i: number) => ({
+	const itemVariants: Variants = {
+		hidden: { x: 30, opacity: 0 },
+		visible: {
 			x: 0,
 			opacity: 1,
-			transition: { delay: i * 0.07 + 0.1, duration: 0.35, ease: "easeOut" as const },
-		}),
+			transition: { duration: 0.35, ease: "easeOut" },
+		},
+	};
+
+	const topLineVariants: Variants = {
+		closed: { rotate: 0, y: -6 },
+		open: { rotate: 45, y: 0 },
+	};
+	const bottomLineVariants: Variants = {
+		closed: { rotate: 0, y: 6 },
+		open: { rotate: -45, y: 0 },
 	};
 
 	return (
 		<>
-			<header className="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-300">
-				{/* Background Layers */}
+			<motion.header
+				initial={{ y: -100, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+				style={{ height: headerHeight }}
+				className="fixed top-0 left-0 right-0 z-50"
+			>
 				<div className="absolute inset-0 z-0 pointer-events-none">
-					{/* Always-on solid black base — ensures mobile is never transparent */}
-					<div className="absolute inset-0 bg-black" />
-
-					{/* Desktop: gradient on top of black (from black/80 → transparent looks identical over black) */}
+					<div className="absolute inset-0 bg-black md:bg-transparent" />
 					<div className="absolute inset-0 bg-linear-to-b from-black/80 to-transparent hidden md:block" />
-
-					{/* Desktop: re-solidify with blur on scroll */}
-					<div
-						className={`absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity duration-500 ease-in-out hidden md:block ${
-							isScrolled ? "opacity-100" : "opacity-0"
-						}`}
+					<motion.div
+						style={{ opacity: blurOpacity }}
+						className="absolute inset-0 bg-black/90 backdrop-blur-md hidden md:block"
 					/>
+					<div className="absolute inset-0 bg-black md:hidden" />
 				</div>
 
 				<div className="relative z-10 container mx-auto px-6 h-full flex items-center justify-between">
-					{/* Logo Container */}
 					<Link
 						href={`/${locale}`}
-						className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+						className="flex items-center gap-3 group"
 					>
-						<Image
-							src="/logo-icon-white.png"
-							width={50}
-							height={50}
-							alt="Little Black Fish"
-							className="w-10 h-auto md:w-12"
-						/>
-						<span className="font-lalezar text-xl md:text-2xl text-white tracking-wide">
+						<motion.div
+							style={{ width: logoSize, height: logoSize }}
+							className="relative shrink-0"
+							whileHover={{ rotate: -8, scale: 1.05 }}
+							transition={{ type: "spring", stiffness: 300, damping: 15 }}
+						>
+							<Image
+								src="/logo-icon-white.png"
+								fill
+								sizes="48px"
+								alt="Little Black Fish"
+								className="object-contain"
+							/>
+						</motion.div>
+						<span className="font-lalezar text-xl md:text-2xl text-white tracking-wide transition-opacity group-hover:opacity-80">
 							{isRtl
 								? "استودیو ماهی سیاه کوچولو"
 								: "Little Black Fish"}
 						</span>
 					</Link>
 
-					{/* Desktop Links */}
 					<div className="hidden md:flex items-center gap-10">
 						{navLinks.map((link) => (
 							<Link
@@ -138,53 +158,71 @@ export default function Navbar({ locale }: { locale: string }) {
 										? handleScroll
 										: undefined
 								}
-								className={`font-black uppercase transition-colors ${
+								className={`relative group font-black uppercase ${
 									isRtl
-										? "text-lg tracking-normal"
-										: "text-xs tracking-[0.3em] text-white/70 hover:text-white"
+										? "text-lg tracking-normal text-white"
+										: "text-xs tracking-[0.3em] text-white/70 hover:text-white transition-colors"
 								}`}
 							>
-								{link.label}
+								<span>{link.label}</span>
+								<motion.span
+									className={`absolute -bottom-1 ${isRtl ? "right-0" : "left-0"} h-px w-full bg-blue-500 origin-left rtl:origin-right`}
+									initial={{ scaleX: 0 }}
+									whileHover={{ scaleX: 1 }}
+									transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+									style={{ transformOrigin: isRtl ? "right" : "left" }}
+								/>
 							</Link>
 						))}
 
-						<button
+						<motion.button
 							onClick={toggleLanguage}
-							className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-white hover:text-black"
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
+							transition={{ type: "spring", stiffness: 400, damping: 17 }}
+							className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-black"
 						>
 							<Globe size={14} />
 							{locale === "en" ? "FA" : "EN"}
-						</button>
+						</motion.button>
 					</div>
 
-					{/* Mobile Toggle Button */}
-					<button
-						className="md:hidden text-white p-2"
-						onClick={() => setIsOpen(true)}
-						aria-label="Open menu"
+					<motion.button
+						className="md:hidden text-white p-2 relative w-10 h-10 flex items-center justify-center"
+						onClick={() => setIsOpen((v) => !v)}
+						aria-label={isOpen ? "Close menu" : "Open menu"}
+						whileTap={{ scale: 0.9 }}
 					>
-						<Menu size={28} />
-					</button>
+						<motion.span
+							className="absolute block h-[2px] w-7 bg-white rounded-full"
+							variants={topLineVariants}
+							animate={isOpen ? "open" : "closed"}
+							transition={{ duration: 0.3, ease: "easeInOut" }}
+						/>
+						<motion.span
+							className="absolute block h-[2px] w-7 bg-white rounded-full"
+							variants={bottomLineVariants}
+							animate={isOpen ? "open" : "closed"}
+							transition={{ duration: 0.3, ease: "easeInOut" }}
+						/>
+					</motion.button>
 				</div>
-			</header>
+			</motion.header>
 
-			{/* Mobile Menu */}
 			<AnimatePresence>
 				{isOpen && (
 					<>
-						{/* Backdrop */}
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
-							transition={{ duration: 0.2 }}
-							className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm md:hidden"
+							transition={{ duration: 0.25 }}
+							className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm md:hidden"
 							onClick={() => setIsOpen(false)}
 						/>
 
-						{/* Slide-in panel */}
 						<motion.div
-							variants={menuVariants}
+							variants={panelVariants}
 							initial="hidden"
 							animate="visible"
 							exit="exit"
@@ -192,43 +230,40 @@ export default function Navbar({ locale }: { locale: string }) {
 								isRtl ? "left-0 border-r" : "right-0 border-l"
 							}`}
 						>
-							{/* Top bar: logo + close */}
-							<div className={`flex items-center justify-between px-6 h-24 border-b border-zinc-800/60 ${isRtl ? "flex-row-reverse" : ""}`}>
-								<Link
-									href={`/${locale}`}
-									onClick={() => setIsOpen(false)}
-									className="flex items-center gap-3"
-								>
-									<Image
-										src="/logo-icon-white.png"
-										width={36}
-										height={36}
-										alt="Logo"
-										className="w-8 h-auto"
-									/>
-									<span className="font-lalezar text-lg text-white">
-										{isRtl ? "ماهی سیاه" : "Little Black Fish"}
-									</span>
-								</Link>
-								<motion.button
-									onClick={() => setIsOpen(false)}
-									whileTap={{ scale: 0.9 }}
-									className="p-2 text-white/60 hover:text-white transition-colors"
-									aria-label="Close menu"
-								>
-									<X size={24} />
-								</motion.button>
+							<motion.div
+								initial={{ scaleX: 0 }}
+								animate={{ scaleX: 1 }}
+								exit={{ scaleX: 0 }}
+								transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+								className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-blue-500 to-transparent origin-center"
+							/>
+
+							<div className={`flex items-center justify-between px-6 h-20 border-b border-zinc-800/60 ${isRtl ? "flex-row-reverse" : ""}`}>
+								<motion.div variants={itemVariants}>
+									<Link
+										href={`/${locale}`}
+										onClick={() => setIsOpen(false)}
+										className="flex items-center gap-3"
+									>
+										<Image
+											src="/logo-icon-white.png"
+											width={36}
+											height={36}
+											alt="Logo"
+											className="w-8 h-auto"
+										/>
+										<span className="font-lalezar text-lg text-white">
+											{isRtl ? "ماهی سیاه" : "Little Black Fish"}
+										</span>
+									</Link>
+								</motion.div>
 							</div>
 
-							{/* Nav links */}
-							<nav className="flex flex-col px-6 pt-6 gap-1 flex-1">
+							<nav className="flex flex-col px-6 pt-8 gap-1 flex-1">
 								{navLinks.map((link, i) => (
 									<motion.div
 										key={link.href}
-										custom={i}
 										variants={itemVariants}
-										initial="hidden"
-										animate="visible"
 									>
 										<Link
 											href={link.href}
@@ -256,35 +291,32 @@ export default function Navbar({ locale }: { locale: string }) {
 											>
 												{link.label}
 											</span>
-											<ChevronRight
-												size={16}
-												className={`shrink-0 text-zinc-600 group-hover:text-blue-500 transition-all ${
-													isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"
-												}`}
-											/>
+											<motion.span
+												className="text-zinc-600 group-hover:text-blue-500 transition-colors shrink-0"
+												whileHover={{ x: isRtl ? -4 : 4 }}
+											>
+												{isRtl ? "←" : "→"}
+											</motion.span>
 										</Link>
 									</motion.div>
 								))}
 							</nav>
 
-							{/* Bottom: language toggle */}
 							<motion.div
-								custom={navLinks.length}
 								variants={itemVariants}
-								initial="hidden"
-								animate="visible"
 								className="px-6 pb-8 pt-4 border-t border-zinc-800/60"
 							>
-								<button
+								<motion.button
 									onClick={() => {
 										toggleLanguage();
 										setIsOpen(false);
 									}}
-									className="w-full flex items-center justify-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-4 text-sm font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all"
+									whileTap={{ scale: 0.97 }}
+									className="w-full flex items-center justify-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-4 text-sm font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors"
 								>
 									<Globe size={16} />
 									{locale === "en" ? "Persian (FA)" : "English (EN)"}
-								</button>
+								</motion.button>
 							</motion.div>
 						</motion.div>
 					</>

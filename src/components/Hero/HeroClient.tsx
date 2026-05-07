@@ -63,7 +63,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
 	return (
-		<div className="relative w-full mt-24 md:mt-0 h-[80vh] md:h-screen overflow-hidden bg-black">
+		<div className="relative w-full mt-20 md:mt-0 h-[88svh] md:h-screen overflow-hidden bg-black">
 			<AnimatePresence mode="wait">
 				<motion.div
 					key={currentSlide.id}
@@ -130,7 +130,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 
 					{/* Content Container */}
 					{(title || subtitle) && (
-						<div className="relative z-20 flex h-full items-end md:items-center justify-center px-4 md:px-6 pb-20 md:pb-0 text-center">
+						<div className="relative z-20 flex h-full items-end md:items-center justify-center px-4 md:px-6 pb-12 md:pb-0 text-center">
 							<div className="max-w-6xl">
 								<motion.div
 									initial={{ y: 40, opacity: 0 }}
