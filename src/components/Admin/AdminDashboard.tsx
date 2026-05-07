@@ -1,7 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import SortableList, { type SortableItem } from './SortableList';
+import dynamic from 'next/dynamic';
+import type { SortableItem } from './SortableList';
+
+const SortableList = dynamic(() => import('./SortableList'), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-16 rounded-xl bg-zinc-800/50" />
+      ))}
+    </div>
+  ),
+});
 import ProjectForm from './ProjectForm';
 import HeroForm from './HeroForm';
 import { updateOrder } from '@/actions/reorder';

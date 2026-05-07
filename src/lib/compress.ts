@@ -1,7 +1,7 @@
-import imageCompression from 'browser-image-compression';
-
 export async function compressImage(file: File): Promise<File> {
   if (!file.type.startsWith('image/')) return file;
+
+  const imageCompression = (await import('browser-image-compression')).default;
 
   const compressed = await imageCompression(file, {
     maxSizeMB: 1,

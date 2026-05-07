@@ -17,17 +17,18 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const supabase = await createServerClient();
 
-  const { data: slideRows } = await supabase
-    .from('hero_slides')
-    .select('*')
-    .eq('active', true)
-    .order('order', { ascending: true });
-
-  const { data: projectRows } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('published', true)
-    .order('order', { ascending: true });
+  const [{ data: slideRows }, { data: projectRows }] = await Promise.all([
+    supabase
+      .from('hero_slides')
+      .select('id, title_en, title_fa, subtitle_en, subtitle_fa, image_url, youtube_url, order')
+      .eq('active', true)
+      .order('order', { ascending: true }),
+    supabase
+      .from('projects')
+      .select('id, slug, youtube_url, image_url, title_en, title_fa, description_en, description_fa, order')
+      .eq('published', true)
+      .order('order', { ascending: true }),
+  ]);
 
   const slides = (slideRows ?? []).map(serializeHeroSlide);
   const projects = (projectRows ?? []).map(serializeProject);
