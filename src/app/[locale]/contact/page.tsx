@@ -13,6 +13,7 @@ export default function ContactPage() {
   const locale = params?.locale as string;
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,6 +28,7 @@ export default function ContactPage() {
       (e.target as HTMLFormElement).reset();
     } else {
       setStatus('error');
+      setErrorMsg(result.error ?? 'Unknown error');
     }
     setLoading(false);
 
@@ -129,9 +131,14 @@ export default function ContactPage() {
                 ) : (
                   <AlertCircle size={24} />
                 )}
-                <p className="font-bold uppercase tracking-widest">
-                  {status === 'success' ? t('success') : t('error')}
-                </p>
+                <div>
+                  <p className="font-bold uppercase tracking-widest">
+                    {status === 'success' ? t('success') : t('error')}
+                  </p>
+                  {status === 'error' && errorMsg && (
+                    <p className="text-xs mt-1 opacity-70 font-mono">{errorMsg}</p>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

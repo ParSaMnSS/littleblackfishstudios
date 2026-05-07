@@ -93,13 +93,13 @@ export default function Navbar({ locale }: { locale: string }) {
 			<header className="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-300">
 				{/* Background Layers */}
 				<div className="absolute inset-0 z-0 pointer-events-none">
-					{/* Mobile: always solid black */}
-					<div className="absolute inset-0 bg-black md:hidden" />
+					{/* Always-on solid black base — ensures mobile is never transparent */}
+					<div className="absolute inset-0 bg-black" />
 
-					{/* Desktop Layer 1: gradient (always visible) */}
+					{/* Desktop: gradient on top of black (from black/80 → transparent looks identical over black) */}
 					<div className="absolute inset-0 bg-linear-to-b from-black/80 to-transparent hidden md:block" />
 
-					{/* Desktop Layer 2: solid black on scroll */}
+					{/* Desktop: re-solidify with blur on scroll */}
 					<div
 						className={`absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity duration-500 ease-in-out hidden md:block ${
 							isScrolled ? "opacity-100" : "opacity-0"
