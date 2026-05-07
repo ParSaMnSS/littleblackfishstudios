@@ -18,7 +18,7 @@ const lalezar = Lalezar({
 });
 
 export const metadata: Metadata = {
-	title: "Little Black Fish Studios | Creative Agency",
+	title: "Little Black Fish Studios | Creative House",
 	description:
 		"A creative digital agency swimming against the current. Web design, development, and branding.",
 	icons: {
@@ -26,8 +26,9 @@ export const metadata: Metadata = {
 		apple: "/logo-icon-white.png",
 	},
 	openGraph: {
-		title: "Little Black Fish Studios | Creative Agency",
-		description: "A creative digital agency swimming against the current. Web design, development, and branding.",
+		title: "Little Black Fish Studios | Creative House",
+		description:
+			"A creative digital agency swimming against the current. Web design, development, and branding.",
 		url: "https://littleblackfishstudios.com",
 		siteName: "Little Black Fish Studios",
 		images: [
@@ -42,8 +43,9 @@ export const metadata: Metadata = {
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Little Black Fish Studios | Creative Agency",
-		description: "A creative digital agency swimming against the current. Web design, development, and branding.",
+		title: "Little Black Fish Studios | Creative House",
+		description:
+			"A creative digital agency swimming against the current. Web design, development, and branding.",
 		images: ["/og-image.png"],
 	},
 };

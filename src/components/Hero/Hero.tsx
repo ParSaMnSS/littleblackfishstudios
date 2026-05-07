@@ -64,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
 	return (
-		<div className="relative h-screen w-full overflow-hidden bg-black">
+		<div className="relative w-full aspect-video md:aspect-auto md:h-screen overflow-hidden bg-black">
 			<AnimatePresence mode="wait">
 				<motion.div
 					key={currentSlide.id}
