@@ -63,7 +63,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 	const subtitle = isRtl ? currentSlide.subtitleFa : currentSlide.subtitleEn;
 
 	return (
-		<div className="relative w-full mt-20 md:mt-0 h-[88svh] md:h-screen overflow-hidden bg-black">
+		<div className="relative w-full mt-20 md:mt-0 h-[calc(88svh-5rem)] md:h-screen overflow-hidden bg-black">
 			<AnimatePresence mode="wait">
 				<motion.div
 					key={currentSlide.id}
@@ -88,7 +88,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 								<div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden">
 									<iframe
 										src={`https://www.youtube.com/embed/${getYouTubeId(currentSlide.youtubeUrl)}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&playlist=${getYouTubeId(currentSlide.youtubeUrl)}&vq=hd1080&modestbranding=1&disablekb=1&fs=0&cc_load_policy=0`}
-										className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover opacity-0 transition-opacity duration-700"
+										className="absolute top-1/2 left-1/2 w-full h-full md:w-[300%] md:h-[300%] -translate-x-1/2 -translate-y-1/2 object-contain md:object-cover opacity-0 transition-opacity duration-700"
 										allow="autoplay; encrypted-media"
 										frameBorder="0"
 										onLoad={(e) => {
@@ -102,7 +102,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 									alt={title || "Hero background"}
 									fill
 									priority
-									className="object-cover"
+									className="object-contain md:object-cover"
 								/>
 							)
 						) : currentSlide.imageUrl &&
@@ -110,7 +110,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 							<video
 								key={currentSlide.imageUrl}
 								src={currentSlide.imageUrl}
-								className="absolute inset-0 h-full w-full object-cover"
+								className="absolute inset-0 h-full w-full object-contain md:object-cover"
 								autoPlay
 								muted
 								loop
@@ -123,7 +123,7 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 								alt={title || "Hero background"}
 								fill
 								priority
-								className="object-cover"
+								className="object-contain md:object-cover"
 							/>
 						) : null}
 					</motion.div>

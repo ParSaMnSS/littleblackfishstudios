@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Globe } from "lucide-react";
+import { Globe, X } from "lucide-react";
 import {
 	motion,
 	AnimatePresence,
@@ -257,6 +257,15 @@ export default function Navbar({ locale }: { locale: string }) {
 										</span>
 									</Link>
 								</motion.div>
+								<motion.button
+									variants={itemVariants}
+									onClick={() => setIsOpen(false)}
+									whileTap={{ scale: 0.9 }}
+									aria-label="Close menu"
+									className="w-11 h-11 -mr-2 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+								>
+									<X size={24} />
+								</motion.button>
 							</div>
 
 							<nav className="flex flex-col px-6 pt-8 gap-1 flex-1">
