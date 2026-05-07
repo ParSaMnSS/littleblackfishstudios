@@ -6,6 +6,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 const HTML_EDGE = 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400';
 
+const immutableExts = ['woff', 'woff2', 'ttf', 'otf', 'png', 'jpg', 'jpeg', 'webp', 'avif', 'svg', 'ico'];
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -28,16 +30,12 @@ const nextConfig: NextConfig = {
         source: '/_next/image/:path*',
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
       },
-      {
-        source: '/:all*.(woff|woff2|ttf|otf)',
+      ...immutableExts.map((ext) => ({
+        source: `/:path*.${ext}`,
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
-      },
+      })),
       {
-        source: '/:all*.(png|jpg|jpeg|webp|avif|svg|ico)',
-        headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
-      },
-      {
-        source: '/((?!admin|api|_next).*)',
+        source: '/:path((?!admin|api|_next).*)',
         headers: [{ key: 'Cache-Control', value: HTML_EDGE }],
       },
     ];
