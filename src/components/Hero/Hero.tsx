@@ -76,6 +76,9 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 					transition={{ duration: 1.5, ease: "easeInOut" }}
 					className="absolute inset-0"
 				>
+					{/* Mobile gradient overlay so bottom-anchored text stays legible */}
+					<div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/70 to-transparent md:hidden z-10 pointer-events-none" />
+
 					{/* Background Media */}
 					<motion.div
 						initial={{ scale: 1.1 }}
@@ -120,7 +123,7 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 
 					{/* Content Container */}
 					{(title || subtitle) && (
-						<div className="relative flex h-full items-center justify-center px-6 text-center">
+						<div className="relative z-20 flex h-full items-end md:items-center justify-center px-4 md:px-6 pb-20 md:pb-0 text-center">
 							<div className="max-w-6xl">
 								<motion.div
 									initial={{ y: 40, opacity: 0 }}
@@ -130,22 +133,22 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 										duration: 1,
 										ease: "easeOut",
 									}}
-									className="space-y-6 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]"
+									className="space-y-4 md:space-y-6 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]"
 								>
 									{title && (
 										<>
 											<h1
 												className={`font-black tracking-tighter text-white uppercase leading-none
-                        ${isRtl ? "text-5xl md:text-8xl" : "text-6xl md:text-9xl"}`}
+                        ${isRtl ? "text-3xl sm:text-5xl md:text-8xl" : "text-4xl sm:text-6xl md:text-9xl"}`}
 											>
 												{title}
 											</h1>
-											<div className="mx-auto h-1.5 w-32 bg-blue-600/90 shadow-xl" />
+											<div className="mx-auto h-1 md:h-1.5 w-16 md:w-32 bg-blue-600/90 shadow-xl" />
 										</>
 									)}
 
 									{subtitle && (
-										<p className="mx-auto max-w-2xl text-lg font-bold tracking-wide text-zinc-100 md:text-2xl">
+										<p className="mx-auto max-w-2xl text-sm sm:text-lg font-bold tracking-wide text-zinc-100 md:text-2xl">
 											{subtitle}
 										</p>
 									)}
@@ -164,27 +167,27 @@ const Hero: React.FC<HeroProps> = ({ slides, locale }) => {
 							triggerInteraction();
 							handlePrev();
 						}}
-						className="absolute left-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white drop-shadow-md"
+						className="absolute left-3 md:left-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-2 md:p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white drop-shadow-md"
 						aria-label="Previous slide"
 					>
-						<ChevronLeft className="h-12 w-12" />
+						<ChevronLeft className="h-6 w-6 md:h-12 md:w-12" />
 					</button>
 					<button
 						onClick={() => {
 							triggerInteraction();
 							handleNext();
 						}}
-						className="absolute right-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white drop-shadow-md"
+						className="absolute right-3 md:right-6 top-1/2 z-40 -translate-y-1/2 rounded-full p-2 md:p-4 text-white/40 transition-all hover:bg-black/20 hover:text-white drop-shadow-md"
 						aria-label="Next slide"
 					>
-						<ChevronRight className="h-12 w-12" />
+						<ChevronRight className="h-6 w-6 md:h-12 md:w-12" />
 					</button>
 				</>
 			)}
 
 			{/* Slide Indicators */}
 			{slides.length > 1 && (
-				<div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 gap-4 z-40">
+				<div className="absolute bottom-8 md:bottom-12 left-1/2 flex -translate-x-1/2 gap-2 md:gap-4 z-40">
 					{slides.map((_, index) => (
 						<button
 							key={index}

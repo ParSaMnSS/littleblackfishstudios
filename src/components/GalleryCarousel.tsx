@@ -55,23 +55,27 @@ export default function GalleryCarousel({ galleryUrls, title, isRtl }: GalleryCa
       </div>
 
       {/* Navigation Arrows */}
-      {canScrollLeft && (
-        <button
-          onClick={() => scroll('left')}
-          className="absolute left-2 top-1/2 -translate-y-1/2 -translate-y-3 z-10 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/80 hover:scale-110"
-          aria-label="Previous image"
-        >
-          <ChevronLeft size={24} />
-        </button>
-      )}
-      {canScrollRight && (
-        <button
-          onClick={() => scroll('right')}
-          className="absolute right-2 top-1/2 -translate-y-1/2 -translate-y-3 z-10 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/80 hover:scale-110"
-          aria-label="Next image"
-        >
-          <ChevronRight size={24} />
-        </button>
+      {galleryUrls.length > 1 && (
+        <>
+          <button
+            onClick={() => scroll('left')}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/80 hover:scale-110 ${
+              canScrollLeft ? 'opacity-100' : 'opacity-30 cursor-default'
+            }`}
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition-all hover:bg-black/80 hover:scale-110 ${
+              canScrollRight ? 'opacity-100' : 'opacity-30 cursor-default'
+            }`}
+            aria-label="Next image"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </>
       )}
 
       <div
