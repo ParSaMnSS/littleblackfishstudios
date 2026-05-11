@@ -14,30 +14,33 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import type { SerializedProject } from '@/lib/types';
+import type { SerializedProject, SerializedCategory } from '@/lib/types';
 
 interface ProjectFormProps {
   locale: string;
   initialData?: SerializedProject;
+  categories?: SerializedCategory[];
   onClose?: () => void;
 }
 
-export default function ProjectForm({ locale, initialData, onClose }: ProjectFormProps) {
+export default function ProjectForm({ locale, initialData, categories = [], onClose }: ProjectFormProps) {
   const isRtl = locale === 'fa';
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
   const [mediaType, setMediaType] = useState<'youtube' | 'gallery'>((initialData?.mediaType as 'youtube' | 'gallery') || 'youtube');
   const [galleryUrls, setGalleryUrls] = useState<string[]>(initialData?.galleryUrls || []);
+  const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId || '');
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    formData.append('imageUrl', imageUrl); 
+    formData.append('imageUrl', imageUrl);
     formData.append('mediaType', mediaType);
     formData.append('galleryUrls', JSON.stringify(galleryUrls));
+    formData.append('categoryId', categoryId);
     
     if (initialData) {
       formData.append('currentImageUrl', initialData.imageUrl || '');
@@ -59,6 +62,7 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
         published: formData.get('published') === 'true',
         mediaType,
         galleryUrls,
+        categoryId: categoryId || null,
       };
       const result = await createProject(data);
       if (result.success) {
@@ -267,6 +271,30 @@ export default function ProjectForm({ locale, initialData, onClose }: ProjectFor
                 rows={4}
                 className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase text-zinc-500 mb-1 ml-1">
+                {isRtl ? 'دسته‌بندی' : 'Category'}
+              </label>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              >
+                <option value="">{isRtl ? 'بدون دسته‌بندی' : 'Uncategorized'}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {isRtl ? c.nameFa : c.nameEn}
+                  </option>
+                ))}
+              </select>
+              {categories.length === 0 && (
+                <p className="mt-1 text-xs text-zinc-500">
+                  {isRtl
+                    ? 'هیچ دسته‌بندی‌ای وجود ندارد. ابتدا یک دسته‌بندی ایجاد کنید.'
+                    : 'No categories yet. Create one in the Categories tab.'}
+                </p>
+              )}
             </div>
           </div>
           

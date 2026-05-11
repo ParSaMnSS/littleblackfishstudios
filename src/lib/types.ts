@@ -10,6 +10,7 @@ export interface Project {
   title_fa: string;
   description_en: string | null;
   description_fa: string | null;
+  category_id: string | null;
   order: number;
   created_at: string;
   updated_at: string;
@@ -29,6 +30,17 @@ export interface HeroSlide {
   updated_at: string;
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  name_en: string;
+  name_fa: string;
+  order: number;
+  visible: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // Serialized (camelCase) shapes returned by serializers — used by components and client code
 
 export interface SerializedProject {
@@ -43,6 +55,7 @@ export interface SerializedProject {
   titleFa: string;
   descriptionEn: string | null;
   descriptionFa: string | null;
+  categoryId: string | null;
   order: number;
   createdAt: Date;
   updatedAt: Date;
@@ -58,6 +71,17 @@ export interface SerializedHeroSlide {
   youtubeUrl: string | null;
   order: number;
   active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SerializedCategory {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameFa: string;
+  order: number;
+  visible: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

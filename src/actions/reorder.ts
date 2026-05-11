@@ -5,12 +5,17 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateOrder(
   items: { id: string; order: number }[],
-  model: 'project' | 'hero'
+  model: 'project' | 'hero' | 'category'
 ) {
   await requireAdminUser();
   try {
     const supabase = createServiceClient();
-    const table = model === 'project' ? 'projects' : 'hero_slides';
+    const table =
+      model === 'project'
+        ? 'projects'
+        : model === 'hero'
+          ? 'hero_slides'
+          : 'categories';
 
     const results = await Promise.all(
       items.map(({ id, order }) =>

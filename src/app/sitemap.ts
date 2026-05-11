@@ -7,11 +7,18 @@ const LOCALES = ['en', 'fa'] as const;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createServerClient();
 
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('slug, updated_at')
-    .eq('published', true)
-    .order('order', { ascending: true });
+  const [{ data: projects }, { data: categories }] = await Promise.all([
+    supabase
+      .from('projects')
+      .select('slug, updated_at')
+      .eq('published', true)
+      .order('order', { ascending: true }),
+    supabase
+      .from('categories')
+      .select('slug, updated_at')
+      .eq('visible', true)
+      .order('order', { ascending: true }),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = LOCALES.flatMap((locale) => [
     { url: `${BASE_URL}/${locale}`, lastModified: new Date() },
@@ -26,5 +33,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
-  return [...staticRoutes, ...projectRoutes];
+  const categoryRoutes: MetadataRoute.Sitemap = (categories ?? []).flatMap((c) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/category/${c.slug}`,
+      lastModified: new Date(c.updated_at),
+    }))
+  );
+
+  return [...staticRoutes, ...projectRoutes, ...categoryRoutes];
 }

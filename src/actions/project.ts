@@ -46,6 +46,7 @@ export async function createProject(data: {
   published: boolean;
   mediaType?: string;
   galleryUrls?: string[];
+  categoryId?: string | null;
 }) {
   await requireAdminUser();
   try {
@@ -64,6 +65,7 @@ export async function createProject(data: {
       published: data.published,
       media_type: data.mediaType ?? 'youtube',
       gallery_urls: data.galleryUrls ?? [],
+      category_id: data.categoryId ?? null,
       order: 0,
     });
 
@@ -90,6 +92,8 @@ export async function updateProject(id: string, formData: FormData) {
     const imageUrl = formData.get('imageUrl') as string;
     const mediaType = (formData.get('mediaType') as string) || 'youtube';
     const galleryUrls: string[] = JSON.parse((formData.get('galleryUrls') as string) || '[]');
+    const categoryIdRaw = formData.get('categoryId') as string | null;
+    const categoryId = categoryIdRaw && categoryIdRaw.length > 0 ? categoryIdRaw : null;
 
     const finalImageUrl = processImageUrl(imageUrl, youtubeUrl);
     const slug = generateSlug(titleEn);
@@ -104,6 +108,7 @@ export async function updateProject(id: string, formData: FormData) {
       slug,
       media_type: mediaType,
       gallery_urls: galleryUrls,
+      category_id: categoryId,
     }).eq('id', id);
 
     if (error) throw error;

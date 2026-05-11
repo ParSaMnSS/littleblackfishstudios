@@ -3,15 +3,27 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Instagram, Youtube } from "lucide-react";
 import { getYouTubeId, getYouTubeMaxResThumbnail } from "@/lib/youtube";
 import type { HeroProps } from "./types";
 
 const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 	const [current, setCurrent] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
 	const isRtl = locale === "fa";
 	const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		const onScroll = () => setScrolled(window.scrollY > 80);
+		onScroll();
+		window.addEventListener("scroll", onScroll, { passive: true });
+		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
+
+	const scrollToProjects = useCallback(() => {
+		document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+	}, []);
 
 	// Track which YouTube slides have been activated (iframe loaded)
 	const [activatedSlides, setActivatedSlides] = useState<Set<string>>(
@@ -225,6 +237,45 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 					<div className="h-px w-20 bg-zinc-100/50" />
 				</div>
 			</div>
+
+			{/* Social Icons (bottom-left) */}
+			<div className="absolute bottom-8 left-8 hidden md:flex z-40 flex-col gap-3 drop-shadow-md">
+				<a
+					href="https://www.instagram.com/littleblackfishstudio/"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="Instagram"
+					className="text-zinc-100/70 transition-all hover:text-white hover:scale-110"
+				>
+					<Instagram className="h-5 w-5" />
+				</a>
+				<a
+					href="https://www.youtube.com/@Littleblackfishstudio"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="YouTube"
+					className="text-zinc-100/70 transition-all hover:text-white hover:scale-110"
+				>
+					<Youtube className="h-5 w-5" />
+				</a>
+			</div>
+
+			{/* Scroll cue (bouncing chevron) */}
+			<button
+				type="button"
+				onClick={scrollToProjects}
+				aria-label="Scroll to projects"
+				className={`absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 z-30 text-white/60 hover:text-white drop-shadow-md transition-opacity duration-500 ${
+					scrolled ? "opacity-0 pointer-events-none" : "opacity-100"
+				}`}
+			>
+				<motion.div
+					animate={{ y: [0, 8, 0] }}
+					transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+				>
+					<ChevronDown className="h-7 w-7 md:h-8 md:w-8" />
+				</motion.div>
+			</button>
 		</div>
 	);
 };

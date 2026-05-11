@@ -1,4 +1,11 @@
-import type { Project, HeroSlide, SerializedProject, SerializedHeroSlide } from './types';
+import type {
+  Project,
+  HeroSlide,
+  Category,
+  SerializedProject,
+  SerializedHeroSlide,
+  SerializedCategory,
+} from './types';
 
 export function serializeProject(row: Project): SerializedProject {
   return {
@@ -13,6 +20,7 @@ export function serializeProject(row: Project): SerializedProject {
     titleFa: row.title_fa,
     descriptionEn: row.description_en ?? null,
     descriptionFa: row.description_fa ?? null,
+    categoryId: row.category_id ?? null,
     order: row.order,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
@@ -30,6 +38,19 @@ export function serializeHeroSlide(row: HeroSlide): SerializedHeroSlide {
     youtubeUrl: row.youtube_url ?? null,
     order: row.order,
     active: row.active,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  };
+}
+
+export function serializeCategory(row: Category): SerializedCategory {
+  return {
+    id: row.id,
+    slug: row.slug,
+    nameEn: row.name_en,
+    nameFa: row.name_fa,
+    order: row.order,
+    visible: row.visible,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
