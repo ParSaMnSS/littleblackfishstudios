@@ -25,6 +25,7 @@ import { toggleProjectStatus } from '@/actions/admin';
 import { deleteCategory, toggleCategoryVisibility } from '@/actions/category';
 import { setSubmissionRead, deleteSubmission } from '@/actions/contactSubmissions';
 import { signOut } from '@/actions/auth';
+import Image from 'next/image';
 import {
   Plus,
   LayoutGrid,
@@ -502,8 +503,14 @@ export default function AdminDashboard({
         <div className="flex h-full flex-col p-6 md:p-7">
           {/* Brand */}
           <div className={`flex items-center gap-3 ${isRtl ? 'flex-row-reverse' : ''}`}>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-600/30">
-              <span className="text-base font-black text-white">L</span>
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 ring-1 ring-zinc-800">
+              <Image
+                src="/logo-icon-white.png"
+                alt="Little Black Fish Studios"
+                width={28}
+                height={28}
+                className="object-contain"
+              />
             </div>
             <div className={isRtl ? 'text-right' : 'text-left'}>
               <h1 className="text-base font-black tracking-tight leading-tight">
