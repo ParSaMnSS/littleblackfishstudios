@@ -23,9 +23,10 @@ interface SortableListProps {
   onDelete: (item: SortableItem) => void;
   onToggle?: (id: string, currentStatus: boolean) => void;
   isRtl?: boolean;
+  showThumbnail?: boolean;
 }
 
-export default function SortableList({ items, onReorder, onEdit, onDelete, onToggle, isRtl }: SortableListProps) {
+export default function SortableList({ items, onReorder, onEdit, onDelete, onToggle, isRtl, showThumbnail = true }: SortableListProps) {
   const [localItems, setLocalItems] = useState(items);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -169,25 +170,25 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
                     </div>
 
                     {/* Thumbnail Logic */}
-                    {(() => {
+                    {showThumbnail && (() => {
                       const mediaUrl = item.image || getYouTubeThumbnail(item.youtubeUrl);
                       const isVideo = mediaUrl?.toLowerCase().includes('.mp4') || mediaUrl?.toLowerCase().includes('.webm');
-                      
+
                       return (
                         <div className="relative w-12 h-12 bg-zinc-800 rounded overflow-hidden shrink-0">
                           {isVideo ? (
-                            <video 
-                              src={mediaUrl!} 
-                              className="object-cover w-full h-full" 
-                              muted 
-                              playsInline 
+                            <video
+                              src={mediaUrl!}
+                              className="object-cover w-full h-full"
+                              muted
+                              playsInline
                             />
                           ) : mediaUrl ? (
-                            <Image 
-                              src={mediaUrl} 
-                              alt={item.title || 'Thumbnail'} 
-                              fill 
-                              className="object-cover" 
+                            <Image
+                              src={mediaUrl}
+                              alt={item.title || 'Thumbnail'}
+                              fill
+                              className="object-cover"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-zinc-600">

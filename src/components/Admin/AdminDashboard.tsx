@@ -542,6 +542,7 @@ export default function AdminDashboard({
               }}
               onDelete={handleDeleteCategory}
               onToggle={handleToggleCategory}
+              showThumbnail={false}
             />
           ))}
 
