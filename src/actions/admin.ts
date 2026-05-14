@@ -16,6 +16,7 @@ export async function toggleProjectStatus(id: string, currentStatus: boolean) {
     if (error) throw error;
 
     revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
     return { success: true };
   } catch (error) {
     console.error('Failed to toggle project status:', error);

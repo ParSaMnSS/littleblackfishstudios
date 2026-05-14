@@ -67,6 +67,16 @@ export default function AdminDashboard({
     SerializedProject | SerializedHeroSlide | SerializedCategory | null
   >(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [submissions, setSubmissions] = useState(initialSubmissions);
+  const [projects, setProjects] = useState(initialProjects);
+  const [heroSlides, setHeroSlides] = useState(initialHeroSlides);
+  const [categories, setCategories] = useState(initialCategories);
+
+  // Keep local state in sync when the server pushes fresh props (after revalidate).
+  React.useEffect(() => setProjects(initialProjects), [initialProjects]);
+  React.useEffect(() => setHeroSlides(initialHeroSlides), [initialHeroSlides]);
+  React.useEffect(() => setCategories(initialCategories), [initialCategories]);
+  React.useEffect(() => setSubmissions(initialSubmissions), [initialSubmissions]);
 
   const handleReorder = async (
     newItems: SortableItem[],
@@ -79,37 +89,86 @@ export default function AdminDashboard({
     return await updateOrder(itemsWithOrder, type);
   };
 
-  const handleDeleteProject = async (item: SortableItem) => {
+  const handleDeleteProject = (item: SortableItem) => {
     if (
-      confirm(
+      !confirm(
         isRtl
           ? 'آیا از حذف این پروژه مطمئن هستید؟'
           : 'Are you sure you want to delete this project?',
       )
     ) {
-      const result = await deleteProject(item.id);
+      return;
+    }
+    const previous = projects;
+    setProjects((prev) => prev.filter((p) => p.id !== item.id));
+    void deleteProject(item.id).then((result) => {
       if (!result.success) {
+        setProjects(previous);
         alert(isRtl ? 'خطا در حذف پروژه' : 'Failed to delete project');
       }
-    }
+    });
   };
 
-  const handleDeleteHero = async (item: SortableItem) => {
-    if (confirm(isRtl ? 'حذف اسلاید؟' : 'Delete slide?')) {
-      await deleteHeroSlide(item.id, item.image ?? '');
-    }
+  const handleDeleteHero = (item: SortableItem) => {
+    if (!confirm(isRtl ? 'حذف اسلاید؟' : 'Delete slide?')) return;
+    const previous = heroSlides;
+    setHeroSlides((prev) => prev.filter((s) => s.id !== item.id));
+    void deleteHeroSlide(item.id, item.image ?? '').then((result) => {
+      if (result && !result.success) setHeroSlides(previous);
+    });
   };
 
-  const handleDeleteCategory = async (item: SortableItem) => {
+  const handleToggleProject = (id: string, currentStatus: boolean) => {
+    const next = !currentStatus;
+    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, published: next } : p)));
+    void toggleProjectStatus(id, currentStatus).then((result) => {
+      if (!result?.success) {
+        setProjects((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, published: currentStatus } : p)),
+        );
+      }
+    });
+  };
+
+  const handleToggleHero = (id: string, currentStatus: boolean) => {
+    const next = !currentStatus;
+    setHeroSlides((prev) => prev.map((s) => (s.id === id ? { ...s, active: next } : s)));
+    void toggleHeroStatus(id, currentStatus).then((result) => {
+      if (result && !result.success) {
+        setHeroSlides((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, active: currentStatus } : s)),
+        );
+      }
+    });
+  };
+
+  const handleToggleCategory = (id: string, currentVisible: boolean) => {
+    const next = !currentVisible;
+    setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, visible: next } : c)));
+    void toggleCategoryVisibility(id, currentVisible).then((result) => {
+      if (result && !result.success) {
+        setCategories((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, visible: currentVisible } : c)),
+        );
+      }
+    });
+  };
+
+  const handleDeleteCategory = (item: SortableItem) => {
     if (
-      confirm(
+      !confirm(
         isRtl
           ? 'حذف دسته‌بندی؟ پروژه‌های آن بدون دسته‌بندی خواهند شد.'
           : 'Delete category? Projects in it will become uncategorized.',
       )
     ) {
-      await deleteCategory(item.id);
+      return;
     }
+    const previous = categories;
+    setCategories((prev) => prev.filter((c) => c.id !== item.id));
+    void deleteCategory(item.id).then((result) => {
+      if (result && !result.success) setCategories(previous);
+    });
   };
 
   const addLabel = isRtl
@@ -124,7 +183,7 @@ export default function AdminDashboard({
         ? 'Add Slide'
         : 'Add Project';
 
-  const unreadCount = initialSubmissions.filter((s) => !s.read).length;
+  const unreadCount = submissions.filter((s) => !s.read).length;
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode; badge?: number }[] = [
     {
@@ -195,21 +254,38 @@ export default function AdminDashboard({
     );
   };
 
-  const handleToggleSubmissionRead = async (id: string, currentRead: boolean) => {
-    await setSubmissionRead(id, !currentRead);
+  const handleToggleSubmissionRead = (id: string, currentRead: boolean) => {
+    const next = !currentRead;
+    // Optimistic: flip locally first; the action runs in the background.
+    setSubmissions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, read: next } : s)),
+    );
+    void setSubmissionRead(id, next).then((result) => {
+      if (!result.success) {
+        // Roll back on failure.
+        setSubmissions((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, read: currentRead } : s)),
+        );
+      }
+    });
   };
 
-  const handleDeleteSubmission = async (id: string) => {
-    if (
-      confirm(isRtl ? 'این پیام حذف شود؟' : 'Delete this submission?')
-    ) {
-      await deleteSubmission(id);
+  const handleDeleteSubmission = (id: string) => {
+    if (!confirm(isRtl ? 'این پیام حذف شود؟' : 'Delete this submission?')) {
+      return;
     }
+    const previous = submissions;
+    setSubmissions((prev) => prev.filter((s) => s.id !== id));
+    void deleteSubmission(id).then((result) => {
+      if (!result.success) {
+        setSubmissions(previous);
+      }
+    });
   };
 
   const renderSubmissions = () => (
     <div className="space-y-3">
-      {initialSubmissions.map((s) => {
+      {submissions.map((s) => {
         const formattedDate = s.createdAt.toLocaleString(isRtl ? 'fa-IR' : 'en-US', {
           dateStyle: 'medium',
           timeStyle: 'short',
@@ -236,15 +312,19 @@ export default function AdminDashboard({
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-400">
                   <a
-                    href={`mailto:${s.email}`}
-                    className="hover:text-white"
+                    href={`mailto:${encodeURIComponent(s.email)}?subject=${encodeURIComponent(
+                      `Re: Your project inquiry`,
+                    )}&body=${encodeURIComponent(
+                      `Hi ${s.name},\n\nThanks for reaching out — \n\n---\nYour message:\n${s.message}`,
+                    )}`}
+                    className="underline-offset-2 hover:text-white hover:underline"
                     dir="ltr"
                   >
                     {s.email}
                   </a>
                   <a
-                    href={`tel:${s.phone}`}
-                    className="hover:text-white"
+                    href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}
+                    className="underline-offset-2 hover:text-white hover:underline"
                     dir="ltr"
                   >
                     {s.phone}
@@ -299,22 +379,69 @@ export default function AdminDashboard({
   );
 
   return (
-    <div className="mx-auto max-w-5xl">
-      {/* Sticky header */}
-      <header className="sticky top-0 z-30 -mx-4 mb-8 flex flex-col gap-6 border-b border-zinc-900 bg-black/80 px-4 py-4 backdrop-blur md:-mx-10 md:flex-row md:items-center md:justify-between md:px-10">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">
-            {isRtl ? 'مدیریت استودیو' : 'STUDIO CMS'}
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            {isRtl
-              ? 'مدیریت محتوا و چیدمان استودیو'
-              : 'Manage your studio content and layout'}
-          </p>
-        </div>
+    <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:gap-10">
+      {/* Sidebar */}
+      <aside className="md:sticky md:top-6 md:h-[calc(100vh-3rem)] md:w-64 md:shrink-0 md:self-start">
+        <div className="flex h-full flex-col gap-6 rounded-2xl border border-zinc-900 bg-zinc-950/60 p-5 backdrop-blur">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">
+              {isRtl ? 'مدیریت استودیو' : 'STUDIO CMS'}
+            </h1>
+            <p className="mt-1 text-xs text-zinc-500">
+              {isRtl ? 'مدیریت محتوا' : 'Content management'}
+            </p>
+          </div>
 
-        <div className="flex items-center gap-3">
-          {activeTab !== 'submissions' && (
+          <nav className="flex flex-row gap-2 overflow-x-auto md:flex-col md:gap-1 md:overflow-visible">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold transition-all md:w-full ${
+                    isRtl ? 'flex-row-reverse text-right' : 'text-left'
+                  } ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                      : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                  }`}
+                >
+                  <span className="shrink-0">{tab.icon}</span>
+                  <span className="flex-1 uppercase tracking-wider">{tab.label}</span>
+                  {tab.badge !== undefined && tab.badge > 0 && (
+                    <span
+                      className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-black ${
+                        isActive ? 'bg-white text-blue-600' : 'bg-red-500 text-white'
+                      }`}
+                    >
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          <form action={signOut.bind(null, locale)} className="mt-auto hidden md:block">
+            <button
+              type="submit"
+              className={`flex w-full items-center gap-3 rounded-xl border border-zinc-800 px-4 py-2.5 text-sm font-bold text-zinc-400 transition-all hover:border-zinc-600 hover:text-white ${
+                isRtl ? 'flex-row-reverse text-right' : 'text-left'
+              }`}
+            >
+              <LogOut size={14} />
+              <span className="flex-1">{isRtl ? 'خروج' : 'Sign Out'}</span>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* Main column */}
+      <div className="min-w-0 flex-1">
+        {/* Action bar */}
+        <div className="mb-6 flex items-center justify-between gap-3">
+          {activeTab !== 'submissions' ? (
             <button
               onClick={() => {
                 setEditingItem(null);
@@ -325,8 +452,10 @@ export default function AdminDashboard({
               <Plus size={18} />
               {addLabel}
             </button>
+          ) : (
+            <div />
           )}
-          <form action={signOut.bind(null, locale)}>
+          <form action={signOut.bind(null, locale)} className="md:hidden">
             <button
               type="submit"
               className="flex items-center gap-2 rounded-full border border-zinc-800 px-4 py-2.5 text-sm font-bold text-zinc-400 transition-all hover:border-zinc-600 hover:text-white"
@@ -336,46 +465,16 @@ export default function AdminDashboard({
             </button>
           </form>
         </div>
-      </header>
 
-      {/* Pill tabs */}
-      <div className="mb-8 inline-flex rounded-full border border-zinc-800 bg-zinc-950/60 p-1">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-wider transition-all ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                  : 'text-zinc-500 hover:text-zinc-200'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-              {tab.badge !== undefined && tab.badge > 0 && (
-                <span
-                  className={`ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-black ${
-                    isActive ? 'bg-white text-blue-600' : 'bg-red-500 text-white'
-                  }`}
-                >
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
 
       {/* Main Content Area */}
       <div className="min-h-100">
         {activeTab === 'projects' &&
-          (initialProjects.length === 0 ? (
+          (projects.length === 0 ? (
             renderEmptyState()
           ) : (
             <SortableList
-              items={initialProjects.map((p) => ({
+              items={projects.map((p) => ({
                 id: p.id,
                 title: isRtl ? p.titleFa : p.titleEn,
                 image: p.imageUrl,
@@ -385,24 +484,21 @@ export default function AdminDashboard({
               onReorder={(items) => handleReorder(items, 'project')}
               isRtl={isRtl}
               onEdit={(item) => {
-                const fullData =
-                  initialProjects.find((p) => p.id === item.id) ?? null;
+                const fullData = projects.find((p) => p.id === item.id) ?? null;
                 setEditingItem(fullData);
                 setShowAddForm(true);
               }}
               onDelete={handleDeleteProject}
-              onToggle={(id, status) => {
-                toggleProjectStatus(id, status);
-              }}
+              onToggle={handleToggleProject}
             />
           ))}
 
         {activeTab === 'hero' &&
-          (initialHeroSlides.length === 0 ? (
+          (heroSlides.length === 0 ? (
             renderEmptyState()
           ) : (
             <SortableList
-              items={initialHeroSlides.map((s) => ({
+              items={heroSlides.map((s) => ({
                 id: s.id,
                 title: isRtl ? s.titleFa ?? '' : s.titleEn ?? '',
                 image: s.imageUrl,
@@ -412,24 +508,21 @@ export default function AdminDashboard({
               onReorder={(items) => handleReorder(items, 'hero')}
               isRtl={isRtl}
               onEdit={(item) => {
-                const fullData =
-                  initialHeroSlides.find((s) => s.id === item.id) ?? null;
+                const fullData = heroSlides.find((s) => s.id === item.id) ?? null;
                 setEditingItem(fullData);
                 setShowAddForm(true);
               }}
               onDelete={handleDeleteHero}
-              onToggle={(id, status) => {
-                toggleHeroStatus(id, status);
-              }}
+              onToggle={handleToggleHero}
             />
           ))}
 
         {activeTab === 'categories' &&
-          (initialCategories.length === 0 ? (
+          (categories.length === 0 ? (
             renderEmptyState()
           ) : (
             <SortableList
-              items={initialCategories.map((c) => ({
+              items={categories.map((c) => ({
                 id: c.id,
                 title: isRtl ? c.nameFa : c.nameEn,
                 image: null,
@@ -439,20 +532,18 @@ export default function AdminDashboard({
               onReorder={(items) => handleReorder(items, 'category')}
               isRtl={isRtl}
               onEdit={(item) => {
-                const fullData =
-                  initialCategories.find((c) => c.id === item.id) ?? null;
+                const fullData = categories.find((c) => c.id === item.id) ?? null;
                 setEditingItem(fullData);
                 setShowAddForm(true);
               }}
               onDelete={handleDeleteCategory}
-              onToggle={(id, status) => {
-                toggleCategoryVisibility(id, status);
-              }}
+              onToggle={handleToggleCategory}
             />
           ))}
 
         {activeTab === 'submissions' &&
-          (initialSubmissions.length === 0 ? renderEmptyState() : renderSubmissions())}
+          (submissions.length === 0 ? renderEmptyState() : renderSubmissions())}
+        </div>
       </div>
 
       {/* Overlay Form Modal */}
@@ -478,7 +569,7 @@ export default function AdminDashboard({
                 <ProjectForm
                   locale={locale}
                   initialData={editingItem as SerializedProject | undefined}
-                  categories={initialCategories}
+                  categories={categories}
                   onClose={closeModal}
                 />
               ) : activeTab === 'hero' ? (

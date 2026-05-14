@@ -1,5 +1,5 @@
-import { createServiceClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
+import { createServiceClient, requireAdminUser } from '@/lib/supabase/server';
+import { notFound, redirect } from 'next/navigation';
 import AdminDashboard from '@/components/Admin/AdminDashboard';
 import {
   serializeProject,
@@ -17,6 +17,13 @@ export default async function AdminPage({ params }: AdminPageProps) {
 
   if (!['en', 'fa'].includes(locale)) {
     notFound();
+  }
+
+  // Defense-in-depth: middleware should already gate this, but never trust a single layer.
+  try {
+    await requireAdminUser();
+  } catch {
+    redirect(`/${locale}/login`);
   }
 
   const supabase = createServiceClient();

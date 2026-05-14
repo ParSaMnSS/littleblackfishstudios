@@ -105,14 +105,35 @@ export default function ContactPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="group relative w-full overflow-hidden rounded-xl bg-white py-6 font-black uppercase tracking-[0.3em] text-black transition-all hover:bg-zinc-200 disabled:opacity-50"
+              disabled={loading || status !== 'idle'}
+              className={`group relative w-full overflow-hidden rounded-xl py-6 font-black uppercase tracking-[0.3em] transition-colors disabled:cursor-default disabled:opacity-100 ${
+                status === 'success'
+                  ? 'bg-green-500 text-black'
+                  : status === 'error'
+                    ? 'bg-red-500 text-black'
+                    : 'bg-white text-black hover:bg-zinc-200'
+              }`}
+              title={status === 'error' && errorMsg ? errorMsg : undefined}
             >
-              <div className="relative z-10 flex items-center justify-center gap-3">
+              <div
+                key={`${loading}-${status}`}
+                className="relative z-10 flex items-center justify-center gap-3"
+                style={{ animation: 'fadeUp 0.25s ease-out both' }}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="animate-spin" size={20} />
                     <span>{t('sending')}</span>
+                  </>
+                ) : status === 'success' ? (
+                  <>
+                    <CheckCircle size={20} />
+                    <span>{t('success')}</span>
+                  </>
+                ) : status === 'error' ? (
+                  <>
+                    <AlertCircle size={20} />
+                    <span>{t('error')}</span>
                   </>
                 ) : (
                   <>
@@ -123,28 +144,6 @@ export default function ContactPage() {
               </div>
             </button>
           </form>
-
-          {status !== 'idle' && (
-            <div
-              key={status}
-              className={`flex items-center gap-4 rounded-xl p-6 border ${
-                status === 'success'
-                  ? 'border-green-500/20 bg-green-500/10 text-green-500'
-                  : 'border-red-500/20 bg-red-500/10 text-red-500'
-              }`}
-              style={{ animation: 'fadeUp 0.25s ease-out both' }}
-            >
-              {status === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
-              <div>
-                <p className="font-bold uppercase tracking-widest">
-                  {status === 'success' ? t('success') : t('error')}
-                </p>
-                {status === 'error' && errorMsg && (
-                  <p className="text-xs mt-1 opacity-70 font-mono">{errorMsg}</p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

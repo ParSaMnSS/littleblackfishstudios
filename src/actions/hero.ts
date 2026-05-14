@@ -63,6 +63,7 @@ export async function toggleHeroStatus(id: string, currentStatus: boolean) {
     if (error) throw error;
 
     revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
     return { success: true };
   } catch (error) {
     console.error('Toggle hero status failed:', error);
@@ -87,6 +88,7 @@ export async function deleteHeroSlide(id: string, imageUrl: string) {
     }
 
     revalidatePath('/[locale]', 'layout');
+    revalidatePath('/[locale]/admin', 'page');
     return { success: true };
   } catch (error) {
     console.error('Delete hero slide failed:', error);
