@@ -379,10 +379,14 @@ export default function AdminDashboard({
   );
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:gap-10">
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="md:sticky md:top-6 md:h-[calc(100vh-3rem)] md:w-64 md:shrink-0 md:self-start">
-        <div className="flex h-full flex-col gap-6 rounded-2xl border border-zinc-900 bg-zinc-950/60 p-5 backdrop-blur">
+      <aside
+        className={`shrink-0 border-zinc-900 bg-zinc-950/80 backdrop-blur md:sticky md:top-0 md:h-screen md:w-72 lg:w-80 ${
+          isRtl ? 'md:border-l' : 'md:border-r'
+        }`}
+      >
+        <div className="flex h-full flex-col gap-8 p-6 md:p-8">
           <div>
             <h1 className="text-2xl font-black tracking-tight">
               {isRtl ? 'مدیریت استودیو' : 'STUDIO CMS'}
@@ -399,7 +403,7 @@ export default function AdminDashboard({
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold transition-all md:w-full ${
+                  className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all md:w-full ${
                     isRtl ? 'flex-row-reverse text-right' : 'text-left'
                   } ${
                     isActive
@@ -438,7 +442,7 @@ export default function AdminDashboard({
       </aside>
 
       {/* Main column */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 p-6 md:p-10">
         {/* Action bar */}
         <div className="mb-6 flex items-center justify-between gap-3">
           {activeTab !== 'submissions' ? (

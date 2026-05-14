@@ -50,7 +50,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const submissions = (submissionRows ?? []).map(serializeContactSubmission);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-black via-zinc-950 to-black text-white p-4 md:p-10">
+    <div className="min-h-screen bg-linear-to-b from-black via-zinc-950 to-black text-white">
       <AdminDashboard
         initialProjects={projects}
         initialHeroSlides={heroSlides}
