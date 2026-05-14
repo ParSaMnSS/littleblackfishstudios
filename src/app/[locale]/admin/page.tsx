@@ -1,7 +1,12 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import AdminDashboard from '@/components/Admin/AdminDashboard';
-import { serializeProject, serializeHeroSlide, serializeCategory } from '@/lib/serializers';
+import {
+  serializeProject,
+  serializeHeroSlide,
+  serializeCategory,
+  serializeContactSubmission,
+} from '@/lib/serializers';
 
 interface AdminPageProps {
   params: Promise<{ locale: string }>;
@@ -16,15 +21,26 @@ export default async function AdminPage({ params }: AdminPageProps) {
 
   const supabase = createServiceClient();
 
-  const [{ data: projectRows }, { data: slideRows }, { data: categoryRows }] = await Promise.all([
+  const [
+    { data: projectRows },
+    { data: slideRows },
+    { data: categoryRows },
+    { data: submissionRows },
+  ] = await Promise.all([
     supabase.from('projects').select('*').order('order', { ascending: true }),
     supabase.from('hero_slides').select('*').order('order', { ascending: true }),
     supabase.from('categories').select('*').order('order', { ascending: true }),
+    supabase
+      .from('contact_submissions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200),
   ]);
 
   const projects = (projectRows ?? []).map(serializeProject);
   const heroSlides = (slideRows ?? []).map(serializeHeroSlide);
   const categories = (categoryRows ?? []).map(serializeCategory);
+  const submissions = (submissionRows ?? []).map(serializeContactSubmission);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-black via-zinc-950 to-black text-white p-4 md:p-10">
@@ -32,6 +48,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
         initialProjects={projects}
         initialHeroSlides={heroSlides}
         initialCategories={categories}
+        initialSubmissions={submissions}
         locale={locale}
       />
     </div>

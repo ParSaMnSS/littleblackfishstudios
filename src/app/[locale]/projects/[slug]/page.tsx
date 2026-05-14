@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { createServerClient } from '@/lib/supabase/server';
+import { getProjectBySlug } from '@/lib/queries/projects';
 import { YouTubeEmbed } from '@/components/YouTubeEmbed';
 import GalleryCarousel from '@/components/GalleryCarousel';
 import { serializeProject } from '@/lib/serializers';
@@ -15,15 +16,8 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params;
   const isRtl = locale === 'fa';
-  const supabase = await createServerClient();
 
-  const { data: row } = await supabase
-    .from('projects')
-    .select('title_en, title_fa, description_en, description_fa, image_url')
-    .eq('slug', slug)
-    .eq('published', true)
-    .single();
-
+  const row = await getProjectBySlug(slug);
   if (!row) return {};
 
   const title = isRtl ? row.title_fa : row.title_en;
@@ -45,24 +39,12 @@ export default async function ProjectPage({ params }: Props) {
   const { slug, locale } = await params;
   const isRtl = locale === 'fa';
 
-  const supabase = await createServerClient();
-
-  // 1. Fetch the single project; RLS filters out unpublished rows
-  const { data: row, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('slug', slug)
-    .eq('published', true)
-    .single();
-
-  // PGRST116 = "no rows returned" — handled by notFound() below
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching project:', error);
-  }
-
+  const row = await getProjectBySlug(slug);
   if (!row) notFound();
 
   const project = serializeProject(row);
+
+  const supabase = await createServerClient();
 
   // 2. Fetch navigation list (minimal columns)
   const { data: navRows } = await supabase

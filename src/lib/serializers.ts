@@ -2,9 +2,11 @@ import type {
   Project,
   HeroSlide,
   Category,
+  ContactSubmission,
   SerializedProject,
   SerializedHeroSlide,
   SerializedCategory,
+  SerializedContactSubmission,
 } from './types';
 
 export function serializeProject(row: Project): SerializedProject {
@@ -40,6 +42,22 @@ export function serializeHeroSlide(row: HeroSlide): SerializedHeroSlide {
     active: row.active,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
+  };
+}
+
+export function serializeContactSubmission(
+  row: ContactSubmission,
+): SerializedContactSubmission {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    message: row.message,
+    emailSent: row.email_sent,
+    emailError: row.email_error,
+    read: row.read,
+    createdAt: new Date(row.created_at),
   };
 }
 

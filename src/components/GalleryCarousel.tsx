@@ -48,7 +48,7 @@ export default function GalleryCarousel({ galleryUrls, title, isRtl }: GalleryCa
               fill
               sizes="(max-width: 768px) 85vw, 75vw"
               className="object-cover"
-              priority={index === 0}
+              loading={index === 0 ? 'eager' : 'lazy'}
             />
           </div>
         ))}

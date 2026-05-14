@@ -85,3 +85,27 @@ export interface SerializedCategory {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  email_sent: boolean;
+  email_error: string | null;
+  read: boolean;
+  created_at: string;
+}
+
+export interface SerializedContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  emailSent: boolean;
+  emailError: string | null;
+  read: boolean;
+  createdAt: Date;
+}

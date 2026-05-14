@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { sendContactEmail } from '@/actions/contact';
 import { Loader2, Send, CheckCircle, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useParams } from 'next/navigation';
 
 export default function ContactPage() {
   const t = useTranslations('Contact');
   const params = useParams();
   const locale = params?.locale as string;
+  const isRtl = locale === 'fa';
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string>('');
@@ -32,21 +32,28 @@ export default function ContactPage() {
     }
     setLoading(false);
 
-    // Reset status after 5 seconds
     setTimeout(() => setStatus('idle'), 5000);
   }
 
-  const title = locale === 'fa' ? 'شروع پروژه' : 'Start a Project';
-  const btnText = locale === 'fa' ? 'ارسال پیشنهاد' : 'Send Proposal';
+  const title = isRtl ? 'شروع پروژه' : 'Start a Project';
+  const btnText = isRtl ? 'ارسال پیشنهاد' : 'Send Proposal';
+  const phoneLabel = isRtl ? 'شماره تماس' : 'Phone';
+  const detailsLabel = isRtl ? 'جزئیات پروژه' : 'Project Details';
+
+  const inputCls =
+    'w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 text-white placeholder:text-zinc-700 focus:border-white focus:outline-none transition-all';
+  const labelCls =
+    'text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1';
 
   return (
     <div className="min-h-screen bg-black pt-44 pb-20 px-6">
       <div className="mx-auto max-w-2xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="space-y-12"
+        <div
+          className="space-y-12 motion-safe:animate-[fadeUp_0.8s_ease-out_both]"
+          style={{
+            // inline keyframes via Tailwind v4 are awkward; use a tiny CSS animation
+            animation: 'fadeUp 0.8s ease-out both',
+          }}
         >
           <div className="space-y-4">
             <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
@@ -58,38 +65,41 @@ export default function ContactPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                  {t('name')}
-                </label>
-                <input
-                  name="name"
-                  type="text"
-                  required
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 text-white placeholder:text-zinc-700 focus:border-white focus:outline-none transition-all"
-                />
+                <label className={labelCls}>{t('name')}</label>
+                <input name="name" type="text" required autoComplete="name" className={inputCls} />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                  {t('email')}
-                </label>
+                <label className={labelCls}>{t('email')}</label>
                 <input
                   name="email"
                   type="email"
                   required
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 text-white placeholder:text-zinc-700 focus:border-white focus:outline-none transition-all"
+                  autoComplete="email"
+                  className={inputCls}
+                />
+              </div>
+              <div className="space-y-3 md:col-span-2">
+                <label className={labelCls}>{phoneLabel}</label>
+                <input
+                  name="phone"
+                  type="tel"
+                  required
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="+1 555 000 0000"
+                  className={inputCls}
+                  dir="ltr"
                 />
               </div>
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                {locale === 'fa' ? 'جزئیات پروژه' : 'Project Details'}
-              </label>
+              <label className={labelCls}>{detailsLabel}</label>
               <textarea
                 name="message"
                 required
                 rows={6}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 text-white placeholder:text-zinc-700 focus:border-white focus:outline-none transition-all resize-none"
+                className={`${inputCls} resize-none`}
               />
             </div>
 
@@ -114,36 +124,36 @@ export default function ContactPage() {
             </button>
           </form>
 
-          <AnimatePresence>
-            {status !== 'idle' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`flex items-center gap-4 rounded-xl p-6 border ${
-                  status === 'success'
-                    ? 'border-green-500/20 bg-green-500/10 text-green-500'
-                    : 'border-red-500/20 bg-red-500/10 text-red-500'
-                }`}
-              >
-                {status === 'success' ? (
-                  <CheckCircle size={24} />
-                ) : (
-                  <AlertCircle size={24} />
+          {status !== 'idle' && (
+            <div
+              key={status}
+              className={`flex items-center gap-4 rounded-xl p-6 border ${
+                status === 'success'
+                  ? 'border-green-500/20 bg-green-500/10 text-green-500'
+                  : 'border-red-500/20 bg-red-500/10 text-red-500'
+              }`}
+              style={{ animation: 'fadeUp 0.25s ease-out both' }}
+            >
+              {status === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
+              <div>
+                <p className="font-bold uppercase tracking-widest">
+                  {status === 'success' ? t('success') : t('error')}
+                </p>
+                {status === 'error' && errorMsg && (
+                  <p className="text-xs mt-1 opacity-70 font-mono">{errorMsg}</p>
                 )}
-                <div>
-                  <p className="font-bold uppercase tracking-widest">
-                    {status === 'success' ? t('success') : t('error')}
-                  </p>
-                  {status === 'error' && errorMsg && (
-                    <p className="text-xs mt-1 opacity-70 font-mono">{errorMsg}</p>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

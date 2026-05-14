@@ -23,6 +23,7 @@ import { deleteHeroSlide, toggleHeroStatus } from '@/actions/hero';
 import { deleteProject } from '@/actions/project';
 import { toggleProjectStatus } from '@/actions/admin';
 import { deleteCategory, toggleCategoryVisibility } from '@/actions/category';
+import { setSubmissionRead, deleteSubmission } from '@/actions/contactSubmissions';
 import { signOut } from '@/actions/auth';
 import {
   Plus,
@@ -30,19 +31,26 @@ import {
   Image as ImageIcon,
   LogOut,
   Tags,
+  Inbox,
+  Mail,
+  MailOpen,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import type {
   SerializedProject,
   SerializedHeroSlide,
   SerializedCategory,
+  SerializedContactSubmission,
 } from '@/lib/types';
 
-type TabKey = 'projects' | 'hero' | 'categories';
+type TabKey = 'projects' | 'hero' | 'categories' | 'submissions';
 
 interface AdminDashboardProps {
   initialProjects: SerializedProject[];
   initialHeroSlides: SerializedHeroSlide[];
   initialCategories: SerializedCategory[];
+  initialSubmissions: SerializedContactSubmission[];
   locale: string;
 }
 
@@ -50,6 +58,7 @@ export default function AdminDashboard({
   initialProjects,
   initialHeroSlides,
   initialCategories,
+  initialSubmissions,
   locale,
 }: AdminDashboardProps) {
   const isRtl = locale === 'fa';
@@ -115,7 +124,9 @@ export default function AdminDashboard({
         ? 'Add Slide'
         : 'Add Project';
 
-  const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
+  const unreadCount = initialSubmissions.filter((s) => !s.read).length;
+
+  const tabs: { key: TabKey; label: string; icon: React.ReactNode; badge?: number }[] = [
     {
       key: 'projects',
       label: isRtl ? 'پروژه‌ها' : 'Projects',
@@ -131,6 +142,12 @@ export default function AdminDashboard({
       label: isRtl ? 'دسته‌بندی‌ها' : 'Categories',
       icon: <Tags size={16} />,
     },
+    {
+      key: 'submissions',
+      label: isRtl ? 'پیام‌ها' : 'Submissions',
+      icon: <Inbox size={16} />,
+      badge: unreadCount,
+    },
   ];
 
   const closeModal = () => {
@@ -143,14 +160,17 @@ export default function AdminDashboard({
       projects: { en: 'No projects yet', fa: 'هنوز پروژه‌ای وجود ندارد' },
       hero: { en: 'No hero slides yet', fa: 'هنوز اسلایدی وجود ندارد' },
       categories: { en: 'No categories yet', fa: 'هنوز دسته‌بندی‌ای وجود ندارد' },
+      submissions: { en: 'No submissions yet', fa: 'هنوز پیامی دریافت نشده' },
     };
     const icon =
       activeTab === 'projects' ? (
         <LayoutGrid size={64} />
       ) : activeTab === 'hero' ? (
         <ImageIcon size={64} />
-      ) : (
+      ) : activeTab === 'categories' ? (
         <Tags size={64} />
+      ) : (
+        <Inbox size={64} />
       );
 
     return (
@@ -159,19 +179,124 @@ export default function AdminDashboard({
         <p className="mb-6 text-zinc-500">
           {isRtl ? labels[activeTab].fa : labels[activeTab].en}
         </p>
-        <button
-          onClick={() => {
-            setEditingItem(null);
-            setShowAddForm(true);
-          }}
-          className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold transition-all hover:bg-blue-500 hover:scale-105"
-        >
-          <Plus size={16} />
-          {addLabel}
-        </button>
+        {activeTab !== 'submissions' && (
+          <button
+            onClick={() => {
+              setEditingItem(null);
+              setShowAddForm(true);
+            }}
+            className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold transition-all hover:bg-blue-500 hover:scale-105"
+          >
+            <Plus size={16} />
+            {addLabel}
+          </button>
+        )}
       </div>
     );
   };
+
+  const handleToggleSubmissionRead = async (id: string, currentRead: boolean) => {
+    await setSubmissionRead(id, !currentRead);
+  };
+
+  const handleDeleteSubmission = async (id: string) => {
+    if (
+      confirm(isRtl ? 'این پیام حذف شود؟' : 'Delete this submission?')
+    ) {
+      await deleteSubmission(id);
+    }
+  };
+
+  const renderSubmissions = () => (
+    <div className="space-y-3">
+      {initialSubmissions.map((s) => {
+        const formattedDate = s.createdAt.toLocaleString(isRtl ? 'fa-IR' : 'en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        });
+        return (
+          <div
+            key={s.id}
+            className={`rounded-xl border p-5 transition-colors ${
+              s.read
+                ? 'border-zinc-900 bg-zinc-950/40'
+                : 'border-blue-600/40 bg-blue-600/5'
+            }`}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  {!s.read && (
+                    <span
+                      aria-hidden
+                      className="inline-block size-2 rounded-full bg-blue-500"
+                    />
+                  )}
+                  <p className="truncate text-lg font-bold text-white">{s.name}</p>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-400">
+                  <a
+                    href={`mailto:${s.email}`}
+                    className="hover:text-white"
+                    dir="ltr"
+                  >
+                    {s.email}
+                  </a>
+                  <a
+                    href={`tel:${s.phone}`}
+                    className="hover:text-white"
+                    dir="ltr"
+                  >
+                    {s.phone}
+                  </a>
+                  <span className="text-zinc-600">{formattedDate}</span>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={() => handleToggleSubmissionRead(s.id, s.read)}
+                  title={
+                    s.read
+                      ? isRtl
+                        ? 'علامت‌گذاری به عنوان نخوانده'
+                        : 'Mark unread'
+                      : isRtl
+                        ? 'علامت‌گذاری به عنوان خوانده‌شده'
+                        : 'Mark read'
+                  }
+                  className="rounded-full border border-zinc-800 p-2 text-zinc-400 transition-colors hover:border-zinc-600 hover:text-white"
+                >
+                  {s.read ? <Mail size={14} /> : <MailOpen size={14} />}
+                </button>
+                <button
+                  onClick={() => handleDeleteSubmission(s.id)}
+                  title={isRtl ? 'حذف' : 'Delete'}
+                  className="rounded-full border border-zinc-800 p-2 text-zinc-400 transition-colors hover:border-red-500/60 hover:text-red-400"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+            <p
+              className="mt-4 whitespace-pre-wrap text-sm text-zinc-300"
+              dir={isRtl ? 'rtl' : 'ltr'}
+            >
+              {s.message}
+            </p>
+            {!s.emailSent && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-400">
+                <AlertTriangle size={14} />
+                <span>
+                  {isRtl ? 'ایمیل ارسال نشد' : 'Email delivery failed'}
+                  {s.emailError ? ` — ${s.emailError}` : ''}
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -189,16 +314,18 @@ export default function AdminDashboard({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              setEditingItem(null);
-              setShowAddForm(true);
-            }}
-            className="flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold transition-all hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-600/20"
-          >
-            <Plus size={18} />
-            {addLabel}
-          </button>
+          {activeTab !== 'submissions' && (
+            <button
+              onClick={() => {
+                setEditingItem(null);
+                setShowAddForm(true);
+              }}
+              className="flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold transition-all hover:bg-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-600/20"
+            >
+              <Plus size={18} />
+              {addLabel}
+            </button>
+          )}
           <form action={signOut.bind(null, locale)}>
             <button
               type="submit"
@@ -227,6 +354,15 @@ export default function AdminDashboard({
             >
               {tab.icon}
               {tab.label}
+              {tab.badge !== undefined && tab.badge > 0 && (
+                <span
+                  className={`ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-black ${
+                    isActive ? 'bg-white text-blue-600' : 'bg-red-500 text-white'
+                  }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
             </button>
           );
         })}
@@ -314,11 +450,14 @@ export default function AdminDashboard({
               }}
             />
           ))}
+
+        {activeTab === 'submissions' &&
+          (initialSubmissions.length === 0 ? renderEmptyState() : renderSubmissions())}
       </div>
 
       {/* Overlay Form Modal */}
       <AnimatePresence>
-        {(showAddForm || editingItem) && (
+        {activeTab !== 'submissions' && (showAddForm || editingItem) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
