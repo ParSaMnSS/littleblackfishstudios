@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSelectedLayoutSegments } from "next/navigation";
 import { Globe, X } from "lucide-react";
 import {
 	motion,
@@ -17,6 +17,11 @@ export default function Navbar({ locale }: { locale: string }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const pathname = usePathname();
 	const isRtl = locale === "fa";
+
+	const isActive = (href: string) => {
+		if (href.includes('#projects')) return pathname === `/${locale}` || pathname === `/${locale}/`;
+		return pathname.startsWith(href.split('#')[0]) && href !== `/${locale}/`;
+	};
 
 	const { scrollY } = useScroll();
 	const headerHeight = useTransform(scrollY, [0, 120], [96, 72]);
@@ -158,17 +163,18 @@ export default function Navbar({ locale }: { locale: string }) {
 										? handleScroll
 										: undefined
 								}
-								className={`relative group font-black uppercase ${
-									isRtl
-										? "text-lg tracking-normal text-white"
-										: "text-xs tracking-[0.3em] text-white/70 hover:text-white transition-colors"
+								className={`relative group font-black uppercase text-xs tracking-[0.3em] transition-colors ${
+									isActive(link.href)
+										? 'text-white'
+										: 'text-white/60 hover:text-white'
 								}`}
 							>
 								<span>{link.label}</span>
 								<motion.span
-									className={`absolute -bottom-1 ${isRtl ? "right-0" : "left-0"} h-px w-full bg-blue-500 origin-left rtl:origin-right`}
-									initial={{ scaleX: 0 }}
-									whileHover={{ scaleX: 1 }}
+									className={`absolute -bottom-1 ${isRtl ? "right-0" : "left-0"} h-px bg-blue-500`}
+									initial={{ width: isActive(link.href) ? '100%' : '0%' }}
+									animate={{ width: isActive(link.href) ? '100%' : '0%' }}
+									whileHover={{ width: '100%' }}
 									transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
 									style={{ transformOrigin: isRtl ? "right" : "left" }}
 								/>
@@ -292,10 +298,8 @@ export default function Navbar({ locale }: { locale: string }) {
 												{String(i + 1).padStart(2, "0")}
 											</span>
 											<span
-												className={`font-black uppercase text-white group-hover:text-blue-400 transition-colors flex-1 ${
-													isRtl
-														? "text-2xl tracking-normal"
-														: "text-xl tracking-[0.15em]"
+												className={`font-black uppercase transition-colors flex-1 text-xl tracking-widest ${
+													isActive(link.href) ? 'text-blue-400' : 'text-white group-hover:text-blue-400'
 												}`}
 											>
 												{link.label}

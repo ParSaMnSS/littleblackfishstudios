@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import ConditionalNavbar from "@/components/Layout/ConditionalNavbar";
+import ConditionalFooter from "@/components/Layout/ConditionalFooter";
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -80,6 +81,7 @@ export default async function RootLayout({
 				<NextIntlClientProvider messages={messages}>
 					<ConditionalNavbar locale={locale} />
 					{children}
+					<ConditionalFooter locale={locale} />
 				</NextIntlClientProvider>
 			</body>
 		</html>

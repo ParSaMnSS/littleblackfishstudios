@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import type { Metadata } from 'next';
 import { createAnonClient } from '@/lib/supabase/server';
 import ProjectGrid from '@/components/ProjectGrid/ProjectGrid';
@@ -69,15 +68,12 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-7xl px-4 py-20 md:py-28 sm:px-6 lg:px-8">
-        <Link
-          href={`/${locale}#projects`}
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white mb-10 ${
-            isRtl ? 'flex-row-reverse' : ''
-          }`}
-        >
-          <ArrowLeft className={isRtl ? 'rotate-180' : ''} size={18} />
-          <span>{isRtl ? 'بازگشت به پروژه‌ها' : 'Back to Projects'}</span>
-        </Link>
+        <BackButton
+          locale={locale}
+          isRtl={isRtl}
+          label={isRtl ? 'بازگشت به پروژه‌ها' : 'Back to Projects'}
+          fallbackHref={`/${locale}#projects`}
+        />
 
         <header className="mb-12">
           <div className="mb-3 flex items-center gap-4">

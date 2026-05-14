@@ -43,7 +43,7 @@ export default function ContactPage() {
   const inputCls =
     'w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 text-white placeholder:text-zinc-700 focus:border-white focus:outline-none transition-all';
   const labelCls =
-    'text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1';
+    `text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ${isRtl ? 'mr-1' : 'ml-1'}`;
 
   return (
     <div className="min-h-screen bg-black pt-44 pb-20 px-6">

@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import BackButton from '@/components/BackButton';
 import type { Metadata } from 'next';
 import { createServerClient } from '@/lib/supabase/server';
 import { getProjectBySlug } from '@/lib/queries/projects';
@@ -95,15 +96,12 @@ export default async function ProjectPage({ params }: Props) {
 
       <div className="mx-auto max-w-4xl">
         {/* Back Button */}
-        <Link
-          href={`/${locale}`}
-          className={`relative z-50 pointer-events-auto cursor-pointer inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white mb-8 ${
-            isRtl ? 'flex-row-reverse' : ''
-          }`}
-        >
-          <ArrowLeft className={isRtl ? 'rotate-180' : ''} size={18} />
-          <span>{isRtl ? 'بازگشت به پروژه‌ها' : 'Back to Projects'}</span>
-        </Link>
+        <BackButton
+          locale={locale}
+          isRtl={isRtl}
+          label={isRtl ? 'بازگشت به پروژه‌ها' : 'Back to Projects'}
+          fallbackHref={`/${locale}#projects`}
+        />
 
         {/* Media Section */}
         <section className="mb-12">
@@ -126,7 +124,7 @@ export default async function ProjectPage({ params }: Props) {
                   src={project.imageUrl}
                   alt={title ?? ''}
                   fill
-                  className="object-cover opacity-50 grayscale"
+                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, 800px"
                 />
               )}
