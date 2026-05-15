@@ -33,14 +33,17 @@ export default function SortableList({ items, onReorder, onEdit, onDelete, onTog
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const itemIds = useMemo(() => items.map(i => i.id).join(','), [items]);
+  const itemsSignature = useMemo(
+    () => items.map(i => `${i.id}:${i.active ? 1 : 0}`).join(','),
+    [items],
+  );
 
   useEffect(() => {
     if (!isDirty) {
       setLocalItems(items);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemIds, isDirty]);
+  }, [itemsSignature, isDirty]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
