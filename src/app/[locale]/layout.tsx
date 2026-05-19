@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Lalezar } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
@@ -17,6 +17,13 @@ const lalezar = Lalezar({
 	subsets: ["arabic"],
 	weight: "400",
 });
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	themeColor: "#000000",
+	colorScheme: "dark",
+};
 
 export const metadata: Metadata = {
 	title: "Little Black Fish Studios | Creative House",

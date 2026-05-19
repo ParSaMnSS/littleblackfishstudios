@@ -5,6 +5,26 @@ import { useTranslations } from 'next-intl';
 import { sendContactEmail } from '@/actions/contact';
 import { Loader2, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
+
+const EASE_SNAPPY: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: EASE_SNAPPY },
+  },
+};
 
 export default function ContactPage() {
   const t = useTranslations('Contact');
@@ -45,25 +65,32 @@ export default function ContactPage() {
   const labelCls =
     `text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ${isRtl ? 'mr-1' : 'ml-1'}`;
 
+  const buttonStateKey = loading
+    ? 'loading'
+    : status === 'success'
+      ? 'success'
+      : status === 'error'
+        ? 'error'
+        : 'idle';
+
   return (
     <div className="min-h-screen bg-black pt-44 pb-20 px-6">
       <div className="mx-auto max-w-2xl">
-        <div
-          className="space-y-12 motion-safe:animate-[fadeUp_0.8s_ease-out_both]"
-          style={{
-            // inline keyframes via Tailwind v4 are awkward; use a tiny CSS animation
-            animation: 'fadeUp 0.8s ease-out both',
-          }}
+        <motion.div
+          className="space-y-12"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
+          <motion.div variants={itemVariants} className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
               {title}
             </h1>
             <div className="h-1.5 w-24 bg-blue-600" />
-          </div>
+          </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <label className={labelCls}>{t('name')}</label>
                 <input name="name" type="text" required autoComplete="name" className={inputCls} />
@@ -91,9 +118,9 @@ export default function ContactPage() {
                   dir="ltr"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="space-y-3">
+            <motion.div variants={itemVariants} className="space-y-3">
               <label className={labelCls}>{detailsLabel}</label>
               <textarea
                 name="message"
@@ -101,11 +128,13 @@ export default function ContactPage() {
                 rows={6}
                 className={`${inputCls} resize-none`}
               />
-            </div>
+            </motion.div>
 
-            <button
+            <motion.button
+              variants={itemVariants}
               type="submit"
               disabled={loading || status !== 'idle'}
+              whileTap={{ scale: 0.98 }}
               className={`group relative w-full overflow-hidden rounded-xl py-6 font-black uppercase tracking-[0.3em] transition-colors disabled:cursor-default disabled:opacity-100 ${
                 status === 'success'
                   ? 'bg-green-500 text-black'
@@ -115,44 +144,42 @@ export default function ContactPage() {
               }`}
               title={status === 'error' && errorMsg ? errorMsg : undefined}
             >
-              <div
-                key={`${loading}-${status}`}
-                className="relative z-10 flex items-center justify-center gap-3"
-                style={{ animation: 'fadeUp 0.25s ease-out both' }}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="animate-spin" size={20} />
-                    <span>{t('sending')}</span>
-                  </>
-                ) : status === 'success' ? (
-                  <>
-                    <CheckCircle size={20} />
-                    <span>{t('success')}</span>
-                  </>
-                ) : status === 'error' ? (
-                  <>
-                    <AlertCircle size={20} />
-                    <span>{t('error')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Send size={18} />
-                    <span>{btnText}</span>
-                  </>
-                )}
-              </div>
-            </button>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={buttonStateKey}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.22, ease: EASE_SNAPPY }}
+                  className="relative z-10 flex items-center justify-center gap-3"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      <span>{t('sending')}</span>
+                    </>
+                  ) : status === 'success' ? (
+                    <>
+                      <CheckCircle size={20} />
+                      <span>{t('success')}</span>
+                    </>
+                  ) : status === 'error' ? (
+                    <>
+                      <AlertCircle size={20} />
+                      <span>{t('error')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={18} />
+                      <span>{btnText}</span>
+                    </>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.button>
           </form>
-        </div>
+        </motion.div>
       </div>
-
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

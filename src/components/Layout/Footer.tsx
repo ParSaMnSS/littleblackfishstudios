@@ -52,7 +52,7 @@ export default function Footer({ locale }: { locale: string }) {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="flex size-9 items-center justify-center rounded-lg border border-zinc-900 text-zinc-500 transition-all hover:border-zinc-700 hover:text-white"
+                  className="flex size-11 items-center justify-center rounded-lg border border-zinc-900 text-zinc-500 transition-all hover:border-zinc-700 hover:text-white"
                 >
                   {s.icon}
                 </a>

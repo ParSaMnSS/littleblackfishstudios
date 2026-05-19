@@ -73,7 +73,7 @@ export default async function ProjectPage({ params }: Props) {
   const description = isRtl ? project.descriptionFa : project.descriptionEn;
 
   return (
-    <main className="relative min-h-screen bg-black px-4 py-20 text-white md:px-10 overflow-x-hidden">
+    <main className="relative min-h-screen bg-black px-5 py-20 text-white sm:px-6 md:px-10 overflow-x-hidden">
       {/* Desktop Floating Navigation */}
       {prevProject && (
         <Link

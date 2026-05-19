@@ -78,7 +78,7 @@ export default async function HomePage({ params }: HomePageProps) {
 			{/* Content Section */}
 			<div
 				id="projects"
-				className="mx-auto max-w-7xl px-4 py-12 md:py-24 sm:px-6 lg:px-8 scroll-mt-24"
+				className="mx-auto max-w-7xl px-4 py-12 md:py-24 sm:px-6 lg:px-8 scroll-mt-28 md:scroll-mt-24"
 			>
 				<header className="mb-8 md:mb-16">
 					<div className="flex items-center gap-4 mb-4">

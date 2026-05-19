@@ -69,7 +69,7 @@ const WordByWordHeader = ({ text }: { text: string }) => {
 
   return (
     <motion.h1
-      className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-tight md:leading-none text-zinc-100"
+      className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-tight md:leading-none text-zinc-100"
       variants={container}
       initial="hidden"
       whileInView="visible"
@@ -147,7 +147,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 0.04, scale: 1 }}
           transition={{ duration: 3, ease: "easeOut" }}
-          className="text-[40vw] font-black text-white select-none leading-none tracking-tighter"
+          className="text-[28vw] md:text-[40vw] font-black text-white select-none leading-none tracking-tighter"
         >
           {data.year}
         </motion.div>
@@ -179,7 +179,7 @@ export default function AboutPage() {
               >
                 {/* Act Indicator */}
                 <div className="w-full md:w-1/4 shrink-0 mt-2 md:mt-4">
-                  <div className="sticky top-40">
+                  <div className="md:sticky md:top-40">
                     <motion.div 
                       initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                       whileInView={{ opacity: 1, x: 0 }}

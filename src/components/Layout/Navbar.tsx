@@ -194,7 +194,7 @@ export default function Navbar({ locale }: { locale: string }) {
 					</div>
 
 					<motion.button
-						className="md:hidden text-white p-2 relative w-10 h-10 flex items-center justify-center"
+						className="md:hidden text-white relative w-11 h-11 flex items-center justify-center"
 						onClick={() => setIsOpen((v) => !v)}
 						aria-label={isOpen ? "Close menu" : "Open menu"}
 						whileTap={{ scale: 0.9 }}

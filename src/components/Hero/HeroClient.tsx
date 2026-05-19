@@ -238,8 +238,8 @@ const HeroClient: React.FC<HeroProps> = ({ slides, locale }) => {
 				</div>
 			</div>
 
-			{/* Social Icons (bottom-left) */}
-			<div className="absolute bottom-8 left-8 hidden md:flex z-40 flex-col gap-3 drop-shadow-md">
+			{/* Social Icons (bottom-right on mobile, bottom-left column on desktop) */}
+			<div className="absolute bottom-4 right-4 flex flex-row gap-4 md:bottom-8 md:left-8 md:right-auto md:flex-col md:gap-3 z-40 drop-shadow-md">
 				<a
 					href="https://www.instagram.com/littleblackfishstudio/"
 					target="_blank"
