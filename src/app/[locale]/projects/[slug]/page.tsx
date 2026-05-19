@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { createServerClient } from '@/lib/supabase/server';
 import { getProjectBySlug } from '@/lib/queries/projects';
 import { YouTubeEmbed } from '@/components/YouTubeEmbed';
+import { RichText } from '@/components/RichText';
 import GalleryCarousel from '@/components/GalleryCarousel';
 import { serializeProject } from '@/lib/serializers';
 
@@ -138,9 +139,9 @@ export default async function ProjectPage({ params }: Props) {
             {title}
           </h1>
           <div className="h-1.5 w-24 bg-linear-to-r from-blue-600 to-blue-600/20 rounded-full"></div>
-          <p className="whitespace-pre-wrap text-lg md:text-xl leading-relaxed text-zinc-400 font-light">
-            {description}
-          </p>
+          <div className="whitespace-pre-wrap text-lg md:text-xl leading-relaxed text-zinc-400 font-light">
+            <RichText text={description} variant="card" />
+          </div>
         </article>
 
         {/* Mobile & Bottom Navigation Footer */}

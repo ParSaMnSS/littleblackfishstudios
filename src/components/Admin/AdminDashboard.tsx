@@ -25,6 +25,7 @@ import { toggleProjectStatus } from '@/actions/admin';
 import { deleteCategory, toggleCategoryVisibility } from '@/actions/category';
 import { setSubmissionRead, deleteSubmission } from '@/actions/contactSubmissions';
 import { signOut } from '@/actions/auth';
+import { RichText } from '@/components/RichText';
 import Image from 'next/image';
 import {
   Plus,
@@ -434,14 +435,14 @@ export default function AdminDashboard({
               </div>
             </div>
 
-            <p
+            <div
               className={`mt-4 whitespace-pre-wrap text-sm leading-relaxed text-zinc-300 ${
                 isRtl ? 'pr-15' : 'pl-15'
               }`}
               dir="auto"
             >
-              {s.message}
-            </p>
+              <RichText text={s.message} variant="card" />
+            </div>
 
             {!s.emailSent && (
               <div

@@ -1,5 +1,5 @@
 const YOUTUBE_RE =
-  /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{11})/;
+  /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/shorts\/|\/live\/|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{11})/;
 
 export function getYouTubeId(url: string | null | undefined): string | null {
   if (!url) return null;
